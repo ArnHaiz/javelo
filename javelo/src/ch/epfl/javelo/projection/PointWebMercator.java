@@ -7,7 +7,7 @@ public record PointWebMercator(double x, double y) {
         Preconditions.checkArgument(((x>=0)&&(x<=1)&&(y>=0)&&(y<=1)));
     };
     public static PointWebMercator of(int zoomLevel, double x, double y) {
-        PointWebMercator p = new PointWebMercator(Math.scalb(x,zoomLevel+8),Math.scalb(y,zoomLevel+8));
+        PointWebMercator p = new PointWebMercator(Math.scalb(x,-(zoomLevel+8)),Math.scalb(y,-(zoomLevel+8)));
         return p;
     };
     public static PointWebMercator ofPointCh(PointCh pointCh) {
