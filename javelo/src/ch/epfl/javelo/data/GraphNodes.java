@@ -3,7 +3,7 @@ package ch.epfl.javelo.data;
 import java.nio.IntBuffer;
 
 /**
- * record class representing all the nods in Switzerland.
+ * record representing all the nods in Switzerland.
  */
 public record GraphNodes(IntBuffer buffer) {
     /**
