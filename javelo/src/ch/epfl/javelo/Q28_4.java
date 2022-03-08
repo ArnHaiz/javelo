@@ -31,7 +31,7 @@ public final class Q28_4 {
    * @return the double representation of the given Q28_4.
    */
   public static double asDouble(int q28_4) {
-    return Math.scalb((double) q28_4, -4);
+    return (double)Math.scalb((float) q28_4, -4);
   }
 
   /**
