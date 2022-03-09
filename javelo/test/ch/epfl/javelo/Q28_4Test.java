@@ -2,7 +2,7 @@ package ch.epfl.javelo;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class Q28_4Test {
   @Test

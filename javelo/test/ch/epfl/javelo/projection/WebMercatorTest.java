@@ -1,8 +1,9 @@
 package ch.epfl.javelo.projection;
 
-import static org.junit.Assert.*;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class WebMercatorTest {
   private final static double DELTA = 1e-11;

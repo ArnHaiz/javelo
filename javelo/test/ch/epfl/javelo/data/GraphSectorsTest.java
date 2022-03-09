@@ -1,4 +1,5 @@
-package ch.epfl.javelo.projection;
+package ch.epfl.javelo.data;
 
 public class GraphSectorsTest {
+
 }
