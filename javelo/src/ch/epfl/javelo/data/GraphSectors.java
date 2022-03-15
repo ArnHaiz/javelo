@@ -48,6 +48,10 @@ public record GraphSectors(ByteBuffer buffer) {
      * maximum north coordinate that is in Switzerland in swiss coordinates.
      */
     public static final int SWISS_MAX_NORTH = 1296000;
+    /**
+     * number of sectors in a row or a column.
+     */
+    public static final int NUMBER_OF_SECTORS_PER_LINE_OR_COLUMN = 128;
 
     /**
      * finds all the sectors in a square of side double <code>distance</code> around the point <code>center</code>
@@ -72,8 +76,8 @@ public record GraphSectors(ByteBuffer buffer) {
                 Math.min(Math.ceil((center.e() + distance - SWISS_MIN_EAST) / SECTOR_WIDTH) * SECTOR_WIDTH + SWISS_MIN_EAST, SWISS_MAX_EAST),
                 Math.min(Math.ceil((center.n() + distance - SWISS_MIN_NORTH) / SECTOR_HEIGHT) * SECTOR_HEIGHT + SWISS_MIN_NORTH, SWISS_MAX_NORTH));
 
-        int nbrNorthSectors = (int) ((superiorRight.n() - inferiorLeft.n()) / (double) SECTOR_HEIGHT);
-        int nbrEastSectors = (int) ((superiorRight.e() - inferiorLeft.e()) / (double) SECTOR_WIDTH);
+        int nbrNorthSectors = Math2.clamp(1, (int) ((superiorRight.n() - inferiorLeft.n()) / (double) SECTOR_HEIGHT), NUMBER_OF_SECTORS_PER_LINE_OR_COLUMN);
+        int nbrEastSectors = Math2.clamp(1, (int) ((superiorRight.e() - inferiorLeft.e()) / (double) SECTOR_WIDTH), NUMBER_OF_SECTORS_PER_LINE_OR_COLUMN);
 
         for (int i = 0; i < nbrNorthSectors; i++)
             for (int j = 0; j < nbrEastSectors; j++) {
