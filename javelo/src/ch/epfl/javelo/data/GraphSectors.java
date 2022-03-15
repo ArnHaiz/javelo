@@ -1,6 +1,6 @@
 package ch.epfl.javelo.data;
 
-import ch.epfl.javelo.Math2;
+import ch.epfl.javelo.Bits;
 import ch.epfl.javelo.Preconditions;
 import ch.epfl.javelo.projection.PointCh;
 
@@ -51,7 +51,7 @@ public record GraphSectors(ByteBuffer buffer) {
     /**
      * number of sectors in a row or a column.
      */
-    public static final int NUMBER_OF_SECTORS_PER_LINE_OR_COLUMN = 128;
+    public static final int SUBDIVISONS_PER_SIDE = 128;
 
     /**
      * finds all the sectors in a square of side double <code>distance</code> around the point <code>center</code>
@@ -63,9 +63,33 @@ public record GraphSectors(ByteBuffer buffer) {
      */
     public List<Sector> sectorsInArea(PointCh center, double distance) {
         Preconditions.checkArgument(distance > 0);
+
         ArrayList<Sector> sectorList = new ArrayList<>();
 
-        int sectorId = (int) (Math.floor((Math.max(SWISS_MIN_EAST, center.e() - distance) - SWISS_MIN_EAST) / SECTOR_WIDTH)
+        PointCh min = new PointCh(
+                Math.max(Math.floor((center.e() - distance - SWISS_MIN_EAST) / SECTOR_WIDTH) * SECTOR_WIDTH + SWISS_MIN_EAST, SWISS_MIN_EAST),
+                Math.max(Math.floor((center.n() - distance - SWISS_MIN_NORTH) / SECTOR_HEIGHT) * SECTOR_HEIGHT + SWISS_MIN_NORTH, SWISS_MIN_NORTH));
+
+        PointCh max = new PointCh(
+                Math.min(Math.ceil((center.e() + distance - SWISS_MIN_EAST) / SECTOR_WIDTH) * SECTOR_WIDTH + SWISS_MIN_EAST, SWISS_MAX_EAST),
+                Math.min(Math.ceil((center.n() + distance - SWISS_MIN_NORTH) / SECTOR_HEIGHT) * SECTOR_HEIGHT + SWISS_MIN_NORTH, SWISS_MAX_NORTH));
+
+        int firstSectorId = (int) ((min.e() - SWISS_MIN_EAST) / SECTOR_WIDTH +
+                SUBDIVISONS_PER_SIDE * (min.n() - SWISS_MIN_NORTH) / SECTOR_HEIGHT);
+        int nbrNorthSectors = (int) Math.round((max.n() - min.n()) / SECTOR_HEIGHT);
+        int nbrEastSectors = (int) Math.round((max.e() - min.e()) / SECTOR_WIDTH);
+
+        for (int i = 0; i < nbrNorthSectors; i++) {
+            for (int j = firstSectorId; j < firstSectorId + nbrEastSectors; j++) {
+                int firstNodeId = Bits.extractUnsigned(
+                        buffer.getInt((j + i * SUBDIVISONS_PER_SIDE) * 6), 0, 31);
+                int endNodeId = firstNodeId +
+                        Short.toUnsignedInt(buffer.getShort((j + i * SUBDIVISONS_PER_SIDE) * 6 + Integer.BYTES));
+                sectorList.add(new Sector(firstNodeId, endNodeId));
+            }
+        }
+
+        /*int sectorId = (int) (Math.floor((Math.max(SWISS_MIN_EAST, center.e() - distance) - SWISS_MIN_EAST) / SECTOR_WIDTH)
                 + Math.floor((Math.max(SWISS_MIN_NORTH, center.n() - distance) - SWISS_MIN_NORTH) / SECTOR_HEIGHT) * 128);
 
         PointCh inferiorLeft = new PointCh(
@@ -76,17 +100,16 @@ public record GraphSectors(ByteBuffer buffer) {
                 Math.min(Math.ceil((center.e() + distance - SWISS_MIN_EAST) / SECTOR_WIDTH) * SECTOR_WIDTH + SWISS_MIN_EAST, SWISS_MAX_EAST),
                 Math.min(Math.ceil((center.n() + distance - SWISS_MIN_NORTH) / SECTOR_HEIGHT) * SECTOR_HEIGHT + SWISS_MIN_NORTH, SWISS_MAX_NORTH));
 
-        int nbrNorthSectors = Math2.clamp(1, (int) ((superiorRight.n() - inferiorLeft.n()) / (double) SECTOR_HEIGHT), NUMBER_OF_SECTORS_PER_LINE_OR_COLUMN);
-        int nbrEastSectors = Math2.clamp(1, (int) ((superiorRight.e() - inferiorLeft.e()) / (double) SECTOR_WIDTH), NUMBER_OF_SECTORS_PER_LINE_OR_COLUMN);
+        int nbrNorthSectors = (int) ((superiorRight.n() - inferiorLeft.n()) / (double) SECTOR_HEIGHT);
+        int nbrEastSectors = (int) ((superiorRight.e() - inferiorLeft.e()) / (double) SECTOR_WIDTH);
 
         for (int i = 0; i < nbrNorthSectors; i++)
-            for (int j = 0; j < nbrEastSectors; j++) {
-                int firstNodeId = buffer.getInt((sectorId + j + i * NUMBER_OF_SECTORS_PER_LINE_OR_COLUMN) * Integer.BYTES);
-                int nodesCount = Short.toUnsignedInt(buffer.getShort((sectorId + j + i * 128) * Integer.BYTES + Integer.BYTES));
+            for (int j = sectorId; j < sectorId + nbrEastSectors; j++) {
+                int firstNodeId = buffer.getInt((j + i * NUMBER_SECTORS_PER_LINE_OR_COLUMN) * 6);
+                int nodesCount = Short.toUnsignedInt(buffer.getShort((j + i * 128) * 6 + Integer.BYTES));
                 sectorList.add(new Sector(firstNodeId, firstNodeId + nodesCount));
-                System.out.println(sectorId + " " + firstNodeId + " " + (firstNodeId + nodesCount));
             }
-
+*/
         return sectorList;
     }
 
