@@ -6,6 +6,7 @@ public final class Functions {
     public static DoubleUnaryOperator constant (double y) {
         return new Constant(y);
     }
+
     public static DoubleUnaryOperator sampled (float[] samples, double xMax) {
         return new Sample(samples, xMax);
     }
@@ -31,20 +32,18 @@ public final class Functions {
         }
         @Override
         public double applyAsDouble(double operand) {
-            double y;
-            if(operand<0) {
-                y = useSamples[0];
-            }else {
-                if(operand>useXMax) {
-                    y = useSamples[useSamples.length-1];
-                }else {
-                    double intervalSize = useXMax/(useSamples.length-1);
-                    double x = operand/intervalSize;
-                    int floor = (int)Math.floor(operand/intervalSize);
-                    y = Math2.interpolate(useSamples[floor], useSamples[floor + 1], ((operand-floor*intervalSize)/intervalSize));
-                }
+
+            if(operand<=0) {
+                return useSamples[0];
+            }else if(operand>=useXMax) {
+                return useSamples[useSamples.length-1];
+            }else{
+                double intervalSize = useXMax/(useSamples.length-1);
+                int sampleIdx = (int)Math.floor(operand/intervalSize);
+                double  x =((operand-sampleIdx*intervalSize)/intervalSize);
+                return Math2.interpolate(useSamples[sampleIdx], useSamples[sampleIdx + 1], x);
+
             }
-            return y;
         }
     }
 }
