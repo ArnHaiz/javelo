@@ -1,5 +1,8 @@
 package ch.epfl.javelo.data;
 
+import ch.epfl.javelo.Bits;
+import ch.epfl.javelo.Q28_4;
+
 import java.nio.IntBuffer;
 
 /**
@@ -29,20 +32,20 @@ public record GraphNodes(IntBuffer buffer) {
     /**
      * returns the east coordinate of the given node
      */
-    public double nodeE(int nodeId) {return buffer.get(nodeId * NODE_INTS +OFFSET_E);}
+    public double nodeE(int nodeId) {return Q28_4.asDouble(buffer.get(nodeId * NODE_INTS + OFFSET_E));}
     /**
      * returns the north coordinate of the given node
      */
-    public double nodeN(int nodeId) {return buffer.get(nodeId * NODE_INTS + OFFSET_N);}
+    public double nodeN(int nodeId) {return Q28_4.asDouble(buffer.get(nodeId * NODE_INTS + OFFSET_N));}
     /**
      * returns the number of edges coming out of the given node
      */
-    public int outDegree(int nodeId) {return buffer.get(nodeId * NODE_INTS + OFFSET_OUT_EDGES) >> 28;}
+    public int outDegree(int nodeId) {return buffer.get(nodeId * NODE_INTS + OFFSET_OUT_EDGES) >>> 28;}
     /**
      * returns the id of the <code>edgeIndex</code> edge coming out of the given node
      */
     public int edgeId(int nodeId, int edgeIndex) {
         assert 0 <= edgeIndex && edgeIndex < outDegree(nodeId);
-        return ((buffer.get(nodeId * NODE_INTS + OFFSET_OUT_EDGES) << 4) >> 4) + edgeIndex;
+        return Bits.extractUnsigned(((buffer.get(nodeId * NODE_INTS + OFFSET_OUT_EDGES) << 4) >>> 4) + edgeIndex, 0, 31);
     }
 }

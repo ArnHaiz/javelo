@@ -81,9 +81,10 @@ public record GraphSectors(ByteBuffer buffer) {
 
         for (int i = 0; i < nbrNorthSectors; i++)
             for (int j = 0; j < nbrEastSectors; j++) {
-                int firstNodeId = buffer.getInt((sectorId + j + i * 128) * 6);
-                int nodesCount = Short.toUnsignedInt(buffer.getShort((sectorId + j + i * 128) * 6 + Integer.BYTES));
+                int firstNodeId = buffer.getInt((sectorId + j + i * NUMBER_OF_SECTORS_PER_LINE_OR_COLUMN) * Integer.BYTES);
+                int nodesCount = Short.toUnsignedInt(buffer.getShort((sectorId + j + i * 128) * Integer.BYTES + Integer.BYTES));
                 sectorList.add(new Sector(firstNodeId, firstNodeId + nodesCount));
+                System.out.println(sectorId + " " + firstNodeId + " " + (firstNodeId + nodesCount));
             }
 
         return sectorList;
