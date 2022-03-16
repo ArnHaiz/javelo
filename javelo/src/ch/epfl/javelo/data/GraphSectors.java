@@ -15,23 +15,15 @@ public record GraphSectors(ByteBuffer buffer) {
     /**
      * index of the relative position containing the id of the first node of the sector.
      */
-    private static final byte OFFSET_FIRST_NODE = 0b00000000;
+    private static final int OFFSET_FIRST_NODE = 0;
     /**
      * index of the relative position containing the number of nodes in the sector.
      */
-    private static final byte OFFSET_NUMBER_NODES = OFFSET_FIRST_NODE + 0b00000001;
+    private static final int OFFSET_NUMBER_NODES = OFFSET_FIRST_NODE + 4;
     /**
      * number of bytes necessary to represent a sector.
      */
-    private static final int OFFSET_SECTOR_INTS = OFFSET_NUMBER_NODES;
-    /**
-     * width of a sector.
-     */
-    public static final int SECTOR_WIDTH = 2730;
-    /**
-     * height of a sector.
-     */
-    public static final int SECTOR_HEIGHT = 1730;
+    private static final int OFFSET_SECTOR_INTS = OFFSET_NUMBER_NODES + 2;
     /**
      * minimum east coordinate that is in Switzerland in swiss coordinates.
      */
@@ -52,6 +44,14 @@ public record GraphSectors(ByteBuffer buffer) {
      * number of sectors in a row or a column.
      */
     public static final int SUBDIVISONS_PER_SIDE = 128;
+    /**
+     * width of a sector.
+     */
+    public static final double SECTOR_WIDTH = (SWISS_MAX_EAST - (double)SWISS_MIN_EAST) / SUBDIVISONS_PER_SIDE;
+    /**
+     * height of a sector.
+     */
+    public static final double SECTOR_HEIGHT = (SWISS_MAX_NORTH - (double) SWISS_MIN_NORTH) / SUBDIVISONS_PER_SIDE;
 
     /**
      * finds all the sectors in a square of side double <code>distance</code> around the point <code>center</code>
@@ -82,9 +82,10 @@ public record GraphSectors(ByteBuffer buffer) {
         for (int i = 0; i < nbrNorthSectors; i++) {
             for (int j = firstSectorId; j < firstSectorId + nbrEastSectors; j++) {
                 int firstNodeId = Bits.extractUnsigned(
-                        buffer.getInt((j + i * SUBDIVISONS_PER_SIDE) * 6), 0, 31);
+                        buffer.getInt((j + i * SUBDIVISONS_PER_SIDE) * OFFSET_SECTOR_INTS), 0, 31);
                 int endNodeId = firstNodeId +
-                        Short.toUnsignedInt(buffer.getShort((j + i * SUBDIVISONS_PER_SIDE) * 6 + Integer.BYTES));
+                        Short.toUnsignedInt(buffer.getShort(
+                                (j + i * SUBDIVISONS_PER_SIDE) * OFFSET_SECTOR_INTS + Integer.BYTES));
                 sectorList.add(new Sector(firstNodeId, endNodeId));
             }
         }
