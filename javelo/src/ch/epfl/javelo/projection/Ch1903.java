@@ -1,10 +1,9 @@
 package ch.epfl.javelo.projection;
 
 /**
- * Helper class for converting coordinates between WGS 84 and the swiss system.
- * 
  * @author Arnaud Haizmann (329072)
- * @author Florian Kolly (328313)
+ *
+ * Helper class for converting coordinates between WGS 84 and the swiss system.
  */
 public final class Ch1903 {
     /**

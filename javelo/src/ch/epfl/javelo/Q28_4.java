@@ -1,11 +1,10 @@
 package ch.epfl.javelo;
 
 /**
+ * @author Arnaud Haizmann (329072)
+ *
  * Helper class for conversion between Q28.4 format and Java floating point
  * types.
- *
- * @author Arnaud Haizmann (329072)
- * @author Florian Kolly (328313)
  */
 public final class Q28_4 {
   /**

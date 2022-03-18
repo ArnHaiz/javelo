@@ -5,10 +5,9 @@ import java.util.StringJoiner;
 import ch.epfl.javelo.Preconditions;
 
 /**
- * Class (record) representing a set of OpenStreetMap attributes.
- * 
  * @author Arnaud Haizmann (329072)
- * @author Florian Kolly (328313)
+ *
+ * Class (record) representing a set of OpenStreetMap attributes.
  */
 public record AttributeSet(long bits) {
   /**

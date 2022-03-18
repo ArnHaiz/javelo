@@ -3,11 +3,10 @@ package ch.epfl.javelo.projection;
 import ch.epfl.javelo.Math2;
 
 /**
+ * @author Arnaud Haizmann (329072)
+ *
  * Helper class for converting coordinates between WGS 84 and the Web Mercator
  * coordinates.
- * 
- * @author Arnaud Haizmann (329072)
- * @author Florian Kolly (328313)
  */
 public final class WebMercator {
   /**

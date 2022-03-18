@@ -1,10 +1,9 @@
 package ch.epfl.javelo;
 
 /**
- * Helper class for preconditions.
- * 
  * @author Arnaud Haizmann (329072)
- * @author Florian Kolly (328313)
+ *
+ * Helper class for preconditions.
  */
 public final class Preconditions {
     /**

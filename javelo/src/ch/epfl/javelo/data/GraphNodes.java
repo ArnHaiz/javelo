@@ -6,6 +6,9 @@ import ch.epfl.javelo.Q28_4;
 import java.nio.IntBuffer;
 
 /**
+ * @author Arnaud Haizmann (329072)
+ * @author Hervé Sérandour (328233)
+ *
  * record representing all the nods in Switzerland.
  */
 public record GraphNodes(IntBuffer buffer) {

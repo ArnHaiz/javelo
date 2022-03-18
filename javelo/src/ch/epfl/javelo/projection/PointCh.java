@@ -4,10 +4,9 @@ import ch.epfl.javelo.Math2;
 import ch.epfl.javelo.Preconditions;
 
 /**
- * Class (record) representing a point in the swiss coordinate system.
- * 
  * @author Arnaud Haizmann (329072)
- * @author Florian Kolly (328313)
+ *
+ * Class (record) representing a point in the swiss coordinate system.
  */
 public record PointCh(double e, double n) {
     /**

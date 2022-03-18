@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * @author Arnaud Haizmann (329072)
+ * @author Hervé Sérandour (328233)
+ *
  * record representing all the sectors in switzerland
  */
 public record GraphSectors(ByteBuffer buffer) {
@@ -90,27 +93,6 @@ public record GraphSectors(ByteBuffer buffer) {
             }
         }
 
-        /*int sectorId = (int) (Math.floor((Math.max(SWISS_MIN_EAST, center.e() - distance) - SWISS_MIN_EAST) / SECTOR_WIDTH)
-                + Math.floor((Math.max(SWISS_MIN_NORTH, center.n() - distance) - SWISS_MIN_NORTH) / SECTOR_HEIGHT) * 128);
-
-        PointCh inferiorLeft = new PointCh(
-                Math.max(Math.floor((center.e() - distance - SWISS_MIN_EAST) / SECTOR_WIDTH) * SECTOR_WIDTH + SWISS_MIN_EAST, SWISS_MIN_EAST),
-                Math.max(Math.floor((center.n() - distance - SWISS_MIN_NORTH) / SECTOR_HEIGHT) * SECTOR_HEIGHT + SWISS_MIN_NORTH, SWISS_MIN_NORTH));
-
-        PointCh superiorRight = new PointCh(
-                Math.min(Math.ceil((center.e() + distance - SWISS_MIN_EAST) / SECTOR_WIDTH) * SECTOR_WIDTH + SWISS_MIN_EAST, SWISS_MAX_EAST),
-                Math.min(Math.ceil((center.n() + distance - SWISS_MIN_NORTH) / SECTOR_HEIGHT) * SECTOR_HEIGHT + SWISS_MIN_NORTH, SWISS_MAX_NORTH));
-
-        int nbrNorthSectors = (int) ((superiorRight.n() - inferiorLeft.n()) / (double) SECTOR_HEIGHT);
-        int nbrEastSectors = (int) ((superiorRight.e() - inferiorLeft.e()) / (double) SECTOR_WIDTH);
-
-        for (int i = 0; i < nbrNorthSectors; i++)
-            for (int j = sectorId; j < sectorId + nbrEastSectors; j++) {
-                int firstNodeId = buffer.getInt((j + i * NUMBER_SECTORS_PER_LINE_OR_COLUMN) * 6);
-                int nodesCount = Short.toUnsignedInt(buffer.getShort((j + i * 128) * 6 + Integer.BYTES));
-                sectorList.add(new Sector(firstNodeId, firstNodeId + nodesCount));
-            }
-*/
         return sectorList;
     }
 

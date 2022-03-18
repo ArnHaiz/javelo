@@ -1,10 +1,9 @@
 package ch.epfl.javelo;
 
 /**
- * Math helper class.
- * 
  * @author Arnaud Haizmann (329072)
- * @author Florian Kolly (328313)
+ *
+ * Math helper class.
  */
 public final class Math2 {
     /**
@@ -128,7 +127,7 @@ public final class Math2 {
      * @param pY the y component of point P
      * @return the length of the projection.
      */
-    public static double projectionLength(double aX, double aY, double bX, double bY, double pX, double pY) {
+    public static double    projectionLength(double aX, double aY, double bX, double bY, double pX, double pY) {
         double uX = pX - aX;
         double uY = pY - aY;
         double vX = bX - aX;

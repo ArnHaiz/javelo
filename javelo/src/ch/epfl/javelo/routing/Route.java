@@ -5,6 +5,9 @@ import ch.epfl.javelo.projection.PointCh;
 import java.util.List;
 
 /**
+ * @author Arnaud Haizmann (329072)
+ * @author Hervé Sérandour (328233)
+ *
  * interface representing an itinerary.
  */
 public interface Route {

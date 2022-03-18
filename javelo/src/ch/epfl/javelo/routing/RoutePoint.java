@@ -1,12 +1,19 @@
 package ch.epfl.javelo.routing;
 
+import ch.epfl.javelo.Preconditions;
 import ch.epfl.javelo.projection.PointCh;
 
 import static java.lang.Double.NaN;
 import static java.lang.Double.POSITIVE_INFINITY;
 
 /**
+ * @author Arnaud Haizmann (329072)
+ * @author Hervé Sérandour (328233)
+ *
  * record class representing a point on an itinerary closest to a reference point.
+ *
+ * @author Arnaud (329072)
+ * @author Hervé (328233)
  */
 public record RoutePoint(PointCh point, double position, double distanceToReference) {
     /**
