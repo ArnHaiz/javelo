@@ -26,7 +26,7 @@ public record Edge(int fromNodeId, int toNodeId, PointCh fromPoint, PointCh toPo
      * @param toNodeId
      * @return an edge with the specified values.
      */
-    public Edge of(Graph graph, int edgeId, int fromNodeId, int toNodeId) {
+    public static Edge of(Graph graph, int edgeId, int fromNodeId, int toNodeId) {
         return new Edge(
                 fromNodeId, toNodeId,
                 graph.nodePoint(fromNodeId), graph.nodePoint(toNodeId),
@@ -54,8 +54,8 @@ public record Edge(int fromNodeId, int toNodeId, PointCh fromPoint, PointCh toPo
      */
     public PointCh pointAt(double position) {
         return new PointCh(
-                Math2.interpolate(fromPoint.n(), toPoint.n(), position / length()),
-                Math2.interpolate(fromPoint.e(), toPoint.e(), position / length()));
+                Math2.interpolate(fromPoint.e(), toPoint.e(), position / length),
+                Math2.interpolate(fromPoint.n(), toPoint.n(), position / length));
     }
 
     /**
