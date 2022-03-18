@@ -41,7 +41,7 @@ public final class Graph {
         return nodes.count();
     }
     public PointCh nodePoint(int nodeId) {
-        PointCh nodePos = new PointCh(nodes.nodeE(nodeId), GraphNodes.nodeN(nodeId));
+        PointCh nodePos = new PointCh(nodes.nodeE(nodeId), nodes.nodeN(nodeId));
         return nodePos;
     }
     public int nodeOutDegree(int nodeId) {
@@ -51,10 +51,23 @@ public final class Graph {
         return nodes.edgeId(nodeId, edgeIndex);
     }
     public int nodeClosestTo(PointCh point, double searchDistance) {
-        int nodeId;
+        int nodeId = 0;
         double distance = searchDistance*searchDistance;
         int counter = 0;
-        List<Sector> targetSector = 
+        List<GraphSectors.Sector> targetSector = sectors.sectorsInArea(point, searchDistance);
+        for(int i = 0; i<targetSector.size(); i++) {
+            GraphSectors.Sector workSector = targetSector.get(i);
+            for(int j = workSector.startNodeId(); j<workSector.startNodeId(); j++) {
+                PointCh target = nodePoint(j);
+                if(target.squaredDistanceTo(point)<=distance) {
+                    nodeId = j;
+                    counter ++;
+                }
+            }
+        }
+        if(counter==0) {
+            nodeId = -1;
+        }
         return nodeId;
     }
     public int edgeTargetNodeId(int edgeId) {
@@ -64,7 +77,7 @@ public final class Graph {
         return edges.isInverted(edgeId);
     }
     public AttributeSet edgeAttributes(int edgeId) {
-        return attributeSets.AttributeSet(edgeId);
+        return attributeSets.get(edges.attributesIndex(edgeId));
     }
     public double edgeLength(int edgeId) {
         return edges.length(edgeId);
@@ -75,9 +88,9 @@ public final class Graph {
     public DoubleUnaryOperator edgeProfile(int edgeId) {
         float[] sample = edges.profileSamples(edgeId);
         if(sample.length==0) {
-            return Double.NaN;
+            return Functions.constant(Double.NaN);
         }else{
-            return Functions.sampled(sample, GraphEdges.elevationGain(edgeId));
+            return Functions.sampled(sample, edges.elevationGain(edgeId));
         }
     }
 }
