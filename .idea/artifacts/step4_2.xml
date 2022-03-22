@@ -1,6 +1,6 @@
 <component name="ArtifactManager">
-  <artifact name="step4_1">
-    <output-path>$PROJECT_DIR$/out/artifacts/step4_1</output-path>
+  <artifact name="step4_2">
+    <output-path>$PROJECT_DIR$/out/artifacts/step4_2</output-path>
     <root id="root">
       <element id="archive" name="step4_1.zip">
         <element id="directory" name="MonProjet">
