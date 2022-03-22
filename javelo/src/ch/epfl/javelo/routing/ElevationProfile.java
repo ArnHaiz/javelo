@@ -36,8 +36,8 @@ public final class ElevationProfile {
     public double totalAscent() {
         double elevationGain = 0;
         for(int i = 1; i<elevationSamples.length; i++) {
-            if(elevationSamples[1]>0) {
-                elevationGain = elevationGain + elevationSamples[i];
+            if((elevationSamples[i]-elevationSamples[i-1])>0) {
+                elevationGain = elevationGain + (elevationSamples[i]-elevationSamples[i-1]);
             }
         }
         return elevationGain;
@@ -45,11 +45,11 @@ public final class ElevationProfile {
     public double totalDescent() {
         double elevationLoss = 0;
         for(int i = 1; i<elevationSamples.length; i++) {
-            if(elevationSamples[1]<0) {
-                elevationLoss = elevationLoss + elevationSamples[i];
+            if ((elevationSamples[i] - elevationSamples[i - 1]) < 0) {
+                elevationLoss = elevationLoss + (elevationSamples[i] - elevationSamples[i - 1]);
             }
         }
-        return -elevationLoss;
+        return Math.abs(elevationLoss);
     }
     public double elevationAt(double position) {
         return Functions.sampled(elevationSamples, length).applyAsDouble(position);

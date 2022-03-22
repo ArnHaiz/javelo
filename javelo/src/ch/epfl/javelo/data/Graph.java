@@ -64,7 +64,7 @@ public final class Graph {
         this.nodes = nodes;
         this.sectors = sectors;
         this.edges = edges;
-        this.attributeSets = attributeSets;
+        this.attributeSets = new ArrayList<>(attributeSets);
     }
     public int nodeCount() {
         return nodes.count();
@@ -91,6 +91,7 @@ public final class Graph {
                 if(target.squaredDistanceTo(point)<=distance) {
                     nodeId = j;
                     counter ++;
+                    distance = target.squaredDistanceTo(point);
                 }
             }
         }
