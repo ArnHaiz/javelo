@@ -51,10 +51,10 @@ public interface Route {
     /**
      * returns the elevation at the given <code>position</code>.
      *
-     * @param Position
+     * @param position
      * @return the elevation at the given <code>position</code>.
      */
-    double elevationAt(double Position);
+    double elevationAt(double position);
 
     /**
      * returns the id of the node contained in the itinerary closest to the given <code>position</code>.

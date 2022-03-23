@@ -47,8 +47,6 @@ public final class Graph {
             channelElevationsBuffer = channelElevations.map(FileChannel.MapMode.READ_ONLY, 0, channelElevations.size()).asShortBuffer();
             channelProfile_idsBuffer = channelProfile_ids.map(FileChannel.MapMode.READ_ONLY, 0, channelProfile_ids.size()).asIntBuffer();
             channelAttributeSetsBuffer = channelAttributes.map(FileChannel.MapMode.READ_ONLY, 0, channelAttributes.size()).asLongBuffer();
-        }catch (Exception e) {
-            throw new IOException();
         }
         List<AttributeSet> attributeSets = new ArrayList<>();
         for(int i = 0; i< channelAttributeSetsBuffer.capacity(); i++) {
