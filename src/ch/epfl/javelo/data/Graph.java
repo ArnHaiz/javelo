@@ -47,6 +47,8 @@ public final class Graph {
             channelElevationsBuffer = channelElevations.map(FileChannel.MapMode.READ_ONLY, 0, channelElevations.size()).asShortBuffer();
             channelProfile_idsBuffer = channelProfile_ids.map(FileChannel.MapMode.READ_ONLY, 0, channelProfile_ids.size()).asIntBuffer();
             channelAttributeSetsBuffer = channelAttributes.map(FileChannel.MapMode.READ_ONLY, 0, channelAttributes.size()).asLongBuffer();
+        }catch (Exception e) {
+            throw new IOException();
         }
         List<AttributeSet> attributeSets = new ArrayList<>();
         for(int i = 0; i< channelAttributeSetsBuffer.capacity(); i++) {
@@ -67,6 +69,7 @@ public final class Graph {
     public int nodeCount() {
         return nodes.count();
     }
+
     public PointCh nodePoint(int nodeId) {
         PointCh nodePos = new PointCh(nodes.nodeE(nodeId), nodes.nodeN(nodeId));
         return nodePos;
@@ -74,9 +77,11 @@ public final class Graph {
     public int nodeOutDegree(int nodeId) {
         return nodes.outDegree(nodeId);
     }
+
     public int nodeOutEdgeId(int nodeId, int edgeIndex) {
         return nodes.edgeId(nodeId, edgeIndex);
     }
+
     public int nodeClosestTo(PointCh point, double searchDistance) {
         int nodeId = 0;
         double distance = searchDistance*searchDistance;
@@ -101,18 +106,23 @@ public final class Graph {
     public int edgeTargetNodeId(int edgeId) {
         return edges.targetNodeId(edgeId);
     }
+
     public boolean edgeIsInverted(int edgeId) {
         return edges.isInverted(edgeId);
     }
+
     public AttributeSet edgeAttributes(int edgeId) {
         return attributeSets.get(edges.attributesIndex(edgeId));
     }
+
     public double edgeLength(int edgeId) {
         return edges.length(edgeId);
     }
+
     public double edgeElevationGain(int edgeId) {
         return edges.elevationGain(edgeId);
     }
+
     public DoubleUnaryOperator edgeProfile(int edgeId) {
         float[] sample = edges.profileSamples(edgeId);
         if(sample.length==0) {
