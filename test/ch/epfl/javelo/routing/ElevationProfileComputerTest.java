@@ -1,5 +1,4 @@
-/*
-package ch.epfl.my;
+package ch.epfl.javelo.routing;
 
 import ch.epfl.javelo.Functions;
 import ch.epfl.javelo.data.Graph;
@@ -16,9 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.DoubleUnaryOperator;
 
-import static ch.epfl.javelo.routing.ElevationProfileComputer.elevationProfile;
-import static ch.epfl.my.GraphTest.lausanne;
-import static ch.epfl.my.TestUtile.*;
+import static ch.epfl.javelo.routing.ElevationProfileComputer.*;
+import static ch.epfl.test.TestUtile.*;
 import static ch.epfl.test.TestRandomizer.newRandom;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -543,4 +541,4 @@ class ElevationProfileComputerTest {
         }
         return hasNull;
     }
-}*/
+}
