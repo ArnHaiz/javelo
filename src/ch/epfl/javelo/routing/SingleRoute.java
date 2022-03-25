@@ -37,7 +37,7 @@ public final class SingleRoute implements Route {
             tempLength += edges.get(i).length();
 
             if (i == 0)
-                positionList[i] = edges.get(i).length();
+                positionList[i] = 0;
             else
                 positionList[i] = positionList[i - 1] + edges.get(i).length();
         }
@@ -70,22 +70,22 @@ public final class SingleRoute implements Route {
     @Override
     public PointCh pointAt(double position) {
         position = Math2.clamp(0, position, length());
-        int rightEdgeId = Math.abs(Arrays.binarySearch(positionList, position)) - 2;
+        int rightEdgeId = Math2.clamp(0, Math.abs(Arrays.binarySearch(positionList, position)) - 2, edges.size());
         return edges.get(rightEdgeId).pointAt(position - positionList[rightEdgeId]);
     }
 
     @Override
     public double elevationAt(double position) {
         position = Math2.clamp(0, position, length());
-        int rightEdgeId = Math.abs(Arrays.binarySearch(positionList, position)) - 2;
+        int rightEdgeId = Math2.clamp(0, Math.abs(Arrays.binarySearch(positionList, position)) - 2, edges.size());
         return edges.get(rightEdgeId).elevationAt(position - positionList[rightEdgeId]);
     }
 
     @Override
     public int nodeClosestTo(double position) {
         position = Math2.clamp(0, position, length());
-        int rightEdgeId = Math.abs(Arrays.binarySearch(positionList, position)) - 2;
-        return position - edges.get(rightEdgeId).length() <
+        int rightEdgeId = Math2.clamp(0, Math.abs(Arrays.binarySearch(positionList, position)) - 2, edges.size());
+        return position - positionList[rightEdgeId] <
                 edges.get(rightEdgeId).length() / 2 ?
                 edges.get(rightEdgeId).fromNodeId() :
                 edges.get(rightEdgeId).toNodeId();
