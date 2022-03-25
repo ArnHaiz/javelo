@@ -36,10 +36,10 @@ public final class ElevationProfileComputer {
 
     private void fillFirstGape(float[] elevationProfile) {
         int index = 0;
-        while((Float.isNaN(elevationProfile[index]))&&(index < elevationProfile.length)) {
-            index++;
+        while((index < elevationProfile.length-1)||(Float.isNaN(elevationProfile[index]))) {
+            ++index;
         }
-        if(index == elevationProfile.length) {
+        if(index == elevationProfile.length-1) {
             Arrays.fill(elevationProfile, 0);
         }else {
             for (int i = 0; i < index; i++) {
@@ -53,7 +53,7 @@ public final class ElevationProfileComputer {
         while(Float.isNaN(elevationProfile[index])) {
             index--;
         }
-        for(int i = elevationProfile.length-1; i>index; i++) {
+        for(int i = elevationProfile.length-1; i>index; i--) {
             elevationProfile[i] = elevationProfile[index];
         }
     }
@@ -71,7 +71,7 @@ public final class ElevationProfileComputer {
                     lastIndex++;
                 } while (Float.isNaN(elevationProfile[lastIndex]));
                 for (int j = firstIndex + 1; j < lastIndex; j++) {
-                    elevationProfile[j] = (float) Math2.interpolate(firstIndex, lastIndex, ((j - firstIndex)/(lastIndex - firstIndex)));
+                    elevationProfile[j] = (float) Math2.interpolate(firstIndex, lastIndex, ((double)(j - firstIndex)/(lastIndex - firstIndex)));
                 }
             }
         }
