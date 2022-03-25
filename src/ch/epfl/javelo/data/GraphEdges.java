@@ -60,8 +60,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
 
     private int indexProfile(int edgeId) {
         int profileId = profileIds.get(edgeId);
-        int indexProfile = Bits.extractUnsigned(profileId, 0, 30);
-        return indexProfile;
+        return Bits.extractUnsigned(profileId, 0, 30);
     }
 
     private float[] profile0(int edgeId) {
@@ -72,56 +71,76 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
     private float[] profile1(int edgeId) {
         float[] sample = initSamples(edgeId);
         for(int i = 0; i<sample.length; i++) {
-            int partOfSample = elevations.get(indexProfile(edgeId)) << (16 * i);
-            float elevation = partOfSample >>> (elevations.capacity() - (16 * i));
+            int partOfSample = Short.toUnsignedInt(elevations.get(indexProfile(edgeId)+i));
+            float elevation = Q28_4.asFloat(partOfSample);
             if(isInverted(edgeId)) {
                 sample[sample.length-i-1] = elevation;
             }else {
                 sample[i] = elevation;
             }
         }
-        System.out.println(sample[0]);
         return sample;
     }
 
     private float[] profile2(int edgeId){
         float[] sample = initSamples(edgeId);
-        float push = elevations.get(edgeId)<<(16);
-        float elevation = ((int)push)>>>((sample.length-1)*16);
+        int push = Short.toUnsignedInt(elevations.get(indexProfile(edgeId)));
+        float elevation = Q28_4.asFloat(push);
         sample[0] = elevation;
         for(int i = 1; i<sample.length; i = i+2) {
-            float push1 = elevations.get(edgeId)<<(2*i);
-            float leftPart = ((int)push1)>>>((2*sample.length-1)*8);
-            sample[i] = leftPart;
-            float push2 = elevations.get(edgeId)<<(2*i+1);
-            float rightPart = ((int)push2)>>>((2*sample.length-1)*8);
-            sample[i+1] = rightPart;
+            int elevationToExtract = Short.toUnsignedInt(elevations.get(indexProfile(edgeId)+i));
+            int push1 = elevationToExtract>>>8;
+            float leftPart = Q28_4.asFloat(push1);
+            sample[i] = leftPart + sample[i-1];
+            if(i+1 < sample.length) {
+                int push2 = Bits.extractUnsigned(elevationToExtract, 0, 8);
+                float rightPart = Q28_4.asFloat(push2);
+                sample[i+1] = rightPart + sample[i];
+            }
         }
-        return sample;
+        return invertedSample(sample, edgeId);
     }
 
     private float[] profile3(int edgeId) {
         float[] sample = initSamples(edgeId);
-        float push = elevations.get(edgeId)<<(16);
-        float elevation = ((int)push)>>>((sample.length-1)*16);
+        int push = Short.toUnsignedInt(elevations.get(indexProfile(edgeId)));
+        float elevation = Q28_4.asFloat(push);
         sample[0] = elevation;
         for(int i = 1; i< sample.length; i = i+4) {
-            float push1 = elevations.get(edgeId)<<(4*i);
-            float leftPart = ((int)push1)>>>((4*sample.length-1)*4);
-            sample[i] = leftPart;
-            float push2 = elevations.get(edgeId)<<(4*i+1);
-            float leftMiddlePart = ((int)push2)>>>((4*sample.length-1)*4);
-            sample[i+1] = leftMiddlePart;
-            float push3 = elevations.get(edgeId)<<(4*i+2);
-            float rightMiddlePart = ((int)push3)>>>((4*sample.length-1)*4);
-            sample[i+2] = rightMiddlePart;
-            float push4 = elevations.get(edgeId)<<(4*i+3);
-            float rightPart = ((int)push4)>>>((4*sample.length-1)*4);
-            sample[i+3] = rightPart;
+            int elevationToExtract = Short.toUnsignedInt(elevations.get(indexProfile(edgeId)+i));
+            int push1 = elevationToExtract>>>4;
+            float leftPart = Q28_4.asFloat(push1);
+            sample[i] = leftPart + sample[i-1];
+            if(i+1<sample.length) {
+                int push2 = Bits.extractUnsigned(elevationToExtract, 8, 4);
+                float leftMiddlePart = Q28_4.asFloat(push2);
+                sample[i+1] = leftMiddlePart+sample[i];
+            }
+            if(i+2<sample.length) {
+                int push3 = Bits.extractUnsigned(elevationToExtract, 4, 4);
+                float rightMiddlePart = Q28_4.asFloat(push3);
+                sample[i+2] = rightMiddlePart+sample[i+1];
+            }
+            if(i+3<sample.length) {
+                int push4 = Bits.extractUnsigned(elevationToExtract, 4, 4);
+                float rightPart = Q28_4.asFloat(push4);
+                sample[i+3] = rightPart+sample[i+2];
+            }
         }
-        return sample;
+        return invertedSample(sample, edgeId);
     }
 
+    private float[] invertedSample(float[] sample, int edgeId) {
+        if(isInverted(edgeId)) {
+            float[] invertedSample = new float[sample.length];
+            for(int i = 0; i<invertedSample.length; i++) {
+                invertedSample[i] = sample[sample.length-i-1];
+            }
+            return invertedSample;
+        }else {
+            return sample;
+        }
+    }
 
     public int attributesIndex(int edgeId) {
         int index = Short.toUnsignedInt(edgesBuffer.getShort(edgeId*10 + 8));
