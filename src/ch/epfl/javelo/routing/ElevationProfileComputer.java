@@ -36,7 +36,7 @@ public final class ElevationProfileComputer {
 
     private static void fillFirstGape(float[] elevationProfile) {
         int index = 0;
-        while((index < elevationProfile.length-1)||(Float.isNaN(elevationProfile[index]))) {
+        while((index < elevationProfile.length-1)&&(Float.isNaN(elevationProfile[index]))) {
             ++index;
         }
         if(index == elevationProfile.length-1) {
