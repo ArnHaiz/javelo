@@ -5,17 +5,45 @@ import ch.epfl.javelo.Preconditions;
 import ch.epfl.javelo.projection.PointCh;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
- *
+ * class representing a single route composed of a list of edges.
  */
 public final class SingleRoute implements Route {
     private final List<Edge> edges;
+    private final double[] positionList;
+    private final List<PointCh> points;
+    private  final double length;
 
+    /**
+     * public constructor of the <code>SingleRoute</code> class.
+     *
+     * @param edges
+     */
     public SingleRoute(List<Edge> edges) {
         Preconditions.checkArgument(edges.size() != 0);
-        this.edges = edges;
+
+        this.edges = List.copyOf(edges);
+        positionList = new double[edges().size()];
+
+        var tempPoints = new ArrayList<PointCh>();
+        tempPoints.add(edges.get(0).fromPoint());
+        double tempLength = 0;
+
+        for (int i = 0; i < edges().size(); ++i) {
+            tempPoints.add(edges.get(i).toPoint());
+            tempLength += edges.get(i).length();
+
+            if (i == 0)
+                positionList[i] = edges.get(i).length();
+            else
+                positionList[i] = positionList[i - 1] + edges.get(i).length();
+        }
+
+        points = List.copyOf(tempPoints);
+        length = tempLength;
     }
 
     @Override
@@ -26,11 +54,7 @@ public final class SingleRoute implements Route {
     @Override
     public double length() {
         //TODO edges.stream().mapToDouble(Edge::length).sum();
-        double sum = 0;
-        for (Edge edge : edges) {
-            sum += edge.length();
-        }
-        return sum;
+        return length;
     }
 
     @Override
@@ -40,42 +64,31 @@ public final class SingleRoute implements Route {
 
     @Override
     public List<PointCh> points() {
-        List<PointCh> points = new ArrayList<>();
-        for (Edge edge : edges) {
-            points.add(edge.fromPoint());
-            points.add(edge.toPoint());
-        }
         return points;
     }
 
     @Override
     public PointCh pointAt(double position) {
         position = Math2.clamp(0, position, length());
-        return null;
+        int rightEdgeId = Math.abs(Arrays.binarySearch(positionList, position)) - 2;
+        return edges.get(rightEdgeId).pointAt(position - positionList[rightEdgeId]);
     }
 
     @Override
     public double elevationAt(double position) {
         position = Math2.clamp(0, position, length());
-        double atLength = 0;
-        int i = 0;
-        while (atLength < position) {
-            atLength += edges.get(i).length();
-            ++i;
-        }
-        return edges.get(i).elevationAt(atLength - position);
+        int rightEdgeId = Math.abs(Arrays.binarySearch(positionList, position)) - 2;
+        return edges.get(rightEdgeId).elevationAt(position - positionList[rightEdgeId]);
     }
 
     @Override
     public int nodeClosestTo(double position) {
         position = Math2.clamp(0, position, length());
-        double atLength = 0;
-        int i = 0;
-        while (atLength < position) {
-            atLength += edges.get(i).length();
-            ++i;
-        }
-        return atLength - position < edges.get(i).length() ? edges.get(i).fromNodeId() : edges.get(i).toNodeId();
+        int rightEdgeId = Math.abs(Arrays.binarySearch(positionList, position)) - 2;
+        return position - edges.get(rightEdgeId).length() <
+                edges.get(rightEdgeId).length() / 2 ?
+                edges.get(rightEdgeId).fromNodeId() :
+                edges.get(rightEdgeId).toNodeId();
     }
 
     @Override
