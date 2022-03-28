@@ -9,6 +9,9 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
+ * @author Arnaud Haizmann (329072)
+ * @author Hervé Sérandour (328233)
+ *
  * class representing a single route composed of a list of edges.
  */
 public final class SingleRoute implements Route {
