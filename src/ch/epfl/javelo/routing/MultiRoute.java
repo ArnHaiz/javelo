@@ -36,9 +36,7 @@ public final class MultiRoute implements Route{
         double tempLength = 0;
         ArrayList<Edge> tempEdges = new ArrayList<>();
 
-        //TODO correct to add a second loop to consider segments that are multiRoutes.
-        for (int i = 0; i < segments.size(); i++) {
-            Route tempSegment = segments.get(i);
+        for (Route tempSegment : segments) {
             tempPoints.add(tempSegment.points().get(tempSegment.points().size() - 1));
             tempLength += tempSegment.length();
             tempEdges.addAll(tempSegment.edges());
