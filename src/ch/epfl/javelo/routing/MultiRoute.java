@@ -87,21 +87,33 @@ public final class MultiRoute implements Route{
     public PointCh pointAt(double position) {
         position = Math2.clamp(0, position, length);
         int rightEdgeId = indexOf(position);
-        return segments.get(rightEdgeId).pointAt(position - positionList[rightEdgeId]);
+        return edges.get(rightEdgeId).pointAt(position - positionList[rightEdgeId]);
     }
 
     @Override
     public double elevationAt(double position) {
         position = Math2.clamp(0, position, length);
         int rightEdgeId = indexOf(position);
-        return segments.get(rightEdgeId).elevationAt(position - positionList[rightEdgeId]);
+        return edges.get(rightEdgeId).elevationAt(position - positionList[rightEdgeId]);
     }
 
     @Override
     public int nodeClosestTo(double position) {
         position = Math2.clamp(0, position, length);
-        int rightEdgeId = indexOf(position);
-        return segments.get(rightEdgeId).nodeClosestTo(position - positionList[rightEdgeId]);
+        double atLength = 0;
+        int rightEdgeId = 0;
+
+        while (atLength < position) {
+            if (atLength + edges.get(rightEdgeId).length() < position) {
+                atLength += edges.get(rightEdgeId).length();
+                ++rightEdgeId;
+            }
+        }
+
+        return position - positionList[rightEdgeId] <
+                edges.get(rightEdgeId).length() / 2.0 ?
+                edges.get(rightEdgeId).fromNodeId() :
+                edges.get(rightEdgeId).toNodeId();
     }
 
     @Override
