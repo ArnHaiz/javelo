@@ -59,7 +59,7 @@ public class RouteComputerTest {
 
 
         Path path = Path.of("javelo1.kml");
-        Path expected = Path.of("route_prof.kml");
+        Path expected = Path.of("route_159049-117669 (2).kml");
         try {
             assertTrue(compareFile(expected, path));
         } catch (IOException e) {
@@ -164,7 +164,7 @@ public class RouteComputerTest {
     }
 
 
-    @Test
+    /*@Test
     void cheminAltLon2(){
         Graph g = null;
         try {
@@ -206,5 +206,5 @@ public class RouteComputerTest {
             e.printStackTrace();
             fail();
         }
-    }
+    }*/
 }

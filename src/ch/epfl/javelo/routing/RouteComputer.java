@@ -15,7 +15,7 @@ import static java.util.Collections.reverse;
 public final class RouteComputer {
     private final Graph graph;
     private final CostFunction costFunction;
-    RouteComputer(Graph graph, CostFunction costfunction) {
+    public RouteComputer(Graph graph, CostFunction costfunction) {
         this.graph = graph;
         this.costFunction = costfunction;
     }
