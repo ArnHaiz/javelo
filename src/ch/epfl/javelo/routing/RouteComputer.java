@@ -10,6 +10,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.DoubleUnaryOperator;
 
+import static java.util.Collections.reverse;
+
 public final class RouteComputer {
     private final Graph graph;
     private final CostFunction costFunction;
@@ -28,14 +30,14 @@ public final class RouteComputer {
         inExploration.add(startNodeId);
         while(!inExploration.isEmpty()) {
             int node = 0;
+            double length = Double.POSITIVE_INFINITY;
             for (Integer integer : inExploration) {
-                double length = Double.POSITIVE_INFINITY;
                 if(distance[integer]<length) {
                     node = integer;
                     length = distance[integer];
                 }
             }
-            inExploration.remove(inExploration.indexOf(node));
+            inExploration.remove((Integer) node);
             if(node==endNodeId) {
                 break;
             }
@@ -63,6 +65,7 @@ public final class RouteComputer {
                 edgePath.add(new Edge(fromNode, toNode, graph.nodePoint(fromNode), graph.nodePoint(toNode), length, profile));
                 node = predecessor[node];
             }
+            reverse(edgePath);
             return new SingleRoute(edgePath);
         }
     }
