@@ -31,23 +31,24 @@ public final class MultiRoute implements Route{
         Preconditions.checkArgument(segments.size() != 0);
 
         this.segments = List.copyOf(segments);
-        positionList = new double[segments.size() + 1];
-
         var tempPoints = new ArrayList<PointCh>();
         tempPoints.add(segments.get(0).points().get(0));
         double tempLength = 0;
         ArrayList<Edge> tempEdges = new ArrayList<>();
 
-        //TODO correct to add a second loop to consider segments that are multiRoutes.
-        for (int i = 0; i < segments.size(); i++) {
-            tempPoints.add(segments.get(i).points().get(segments.get(i).points().size() - 1));
-            tempLength += segments.get(i).length();
-            tempEdges.addAll(segments.get(i).edges());
+        for (Route tempSegment : segments) {
+            tempPoints.add(tempSegment.points().get(tempSegment.points().size() - 1));
+            tempLength += tempSegment.length();
+            tempEdges.addAll(tempSegment.edges());
+        }
 
+        positionList = new double[tempEdges.size() + 1];
+
+        for (int i = 0; i < tempEdges.size() + 1; i++) {
             if (i == 0) {
                 positionList[i] = 0;
             } else {
-                positionList[i] = positionList[i - 1] + segments.get(i).length();
+                positionList[i] = positionList[i - 1] + tempEdges.get(i).length();
             }
         }
 
@@ -56,13 +57,15 @@ public final class MultiRoute implements Route{
         edges = tempEdges;
     }
 
-    //TODO correct method to be able to iterate on lists of mutliroutes.
+    private int indexOf(double position) {
+        int index = Arrays.binarySearch(positionList, position);
+        return index >= 0 ? index : Math.abs(index) - 2;
+    }
+
     @Override
     public int indexOfSegmentAt(double position) {
         position = Math2.clamp(0, position, length);
-        double currentDistance = 0;
-        int rightEdgeId = Math2.clamp(0, Math.abs(Arrays.binarySearch(positionList, position)) - 2, segments.size());
-        return rightEdgeId + segments.get(rightEdgeId).indexOfSegmentAt(position - positionList[rightEdgeId]);
+        return indexOf(position);
     }
 
     @Override
@@ -83,22 +86,34 @@ public final class MultiRoute implements Route{
     @Override
     public PointCh pointAt(double position) {
         position = Math2.clamp(0, position, length);
-        int rightEdgeId = Math2.clamp(0, Math.abs(Arrays.binarySearch(positionList, position)) - 2, segments.size());
-        return segments.get(rightEdgeId).pointAt(position - positionList[rightEdgeId]);
+        int rightEdgeId = indexOf(position);
+        return edges.get(rightEdgeId).pointAt(position - positionList[rightEdgeId]);
     }
 
     @Override
     public double elevationAt(double position) {
         position = Math2.clamp(0, position, length);
-        int rightEdgeId = Math2.clamp(0, Math.abs(Arrays.binarySearch(positionList, position)) - 2, segments.size());
-        return segments.get(rightEdgeId).elevationAt(position - positionList[rightEdgeId]);
+        int rightEdgeId = indexOf(position);
+        return edges.get(rightEdgeId).elevationAt(position - positionList[rightEdgeId]);
     }
 
     @Override
     public int nodeClosestTo(double position) {
         position = Math2.clamp(0, position, length);
-        int rightEdgeId = Math2.clamp(0, Math.abs(Arrays.binarySearch(positionList, position)) - 2, segments.size());
-        return segments.get(rightEdgeId).nodeClosestTo(position - positionList[rightEdgeId]);
+        double atLength = 0;
+        int rightEdgeId = 0;
+
+        while (atLength < position) {
+            if (atLength + edges.get(rightEdgeId).length() < position) {
+                atLength += edges.get(rightEdgeId).length();
+                ++rightEdgeId;
+            }
+        }
+
+        return position - positionList[rightEdgeId] <
+                edges.get(rightEdgeId).length() / 2.0 ?
+                edges.get(rightEdgeId).fromNodeId() :
+                edges.get(rightEdgeId).toNodeId();
     }
 
     @Override
