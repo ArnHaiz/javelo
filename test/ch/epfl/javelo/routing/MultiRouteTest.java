@@ -78,7 +78,7 @@ class MultiRouteTest {
     void algoGivesCorrectPath() throws IOException {
         try {
             MultiRoute mr = givenRouteMaker();
-            KmlPrinter.write("exampleRoute.kml", mr);
+            KmlPrinter.write("route_prof.kml", mr);
         } catch (IOException e) {
             e.printStackTrace();
             fail();

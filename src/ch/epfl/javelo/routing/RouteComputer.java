@@ -26,15 +26,16 @@ public final class RouteComputer {
         distance[startNodeId] = 0;
         LinkedList<Integer> inExploration = new LinkedList<>();
         inExploration.add(startNodeId);
-        while(inExploration.size()>0) {
+        while(!inExploration.isEmpty()) {
             int node = 0;
             for (Integer integer : inExploration) {
                 double length = Double.POSITIVE_INFINITY;
                 if(distance[integer]<length) {
                     node = integer;
+                    length = distance[integer];
                 }
             }
-            inExploration.remove(node);
+            inExploration.remove(inExploration.indexOf(node));
             if(node==endNodeId) {
                 break;
             }
@@ -53,18 +54,17 @@ public final class RouteComputer {
         }else {
             List<Edge> edgePath = new ArrayList<>();
             int node = endNodeId;
-            while (node >= startNodeId) {
-                int fromNode = predecessor[node-startNodeId];
+            while (!(node == startNodeId)) {
+                int fromNode = predecessor[node];
                 int toNode = node;
                 int index = obtainEdgeIndex(fromNode, toNode);
                 double length = graph.edgeLength(graph.nodeOutEdgeId(fromNode, index));
                 DoubleUnaryOperator profile = graph.edgeProfile(graph.nodeOutEdgeId(fromNode, index));
                 edgePath.add(new Edge(fromNode, toNode, graph.nodePoint(fromNode), graph.nodePoint(toNode), length, profile));
-                node = node-predecessor[node-startNodeId];
+                node = predecessor[node];
             }
             return new SingleRoute(edgePath);
         }
-
     }
     private int obtainEdgeIndex(int startNodeId, int endNodeId) {
         int index = 0;

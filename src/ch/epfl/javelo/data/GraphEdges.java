@@ -107,7 +107,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
         float elevation = Q28_4.asFloat(push);
         sample[0] = elevation;
         for(int i = 1; i< sample.length; i = i+4) {
-            int elevationToExtract = Short.toUnsignedInt(elevations.get(indexProfile(edgeId)+i));
+            int elevationToExtract = Short.toUnsignedInt(elevations.get(indexProfile(edgeId)+(i%4)));
             int push1 = elevationToExtract>>>4;
             float leftPart = Q28_4.asFloat(push1);
             sample[i] = leftPart + sample[i-1];
