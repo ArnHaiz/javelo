@@ -7,24 +7,56 @@ import ch.epfl.javelo.Q28_4;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
-
+/**
+ * @author Arnaud Haizmann (329072)
+ * @author Hervé Sérandour (328233)
+ *
+ * record class representing all the edges in Switzerland.
+ * @param edgesBuffer : buffer containing attributes of the edges
+ * @param profileIds : buffer containing the profile of the edges
+ * @param elevations : buffer containing elevations of each edge
+ */
 public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuffer elevations) {
+    /**
+     * return the direction of the edge
+     * @param edgeId : identity of the edge
+     * @return true if the edge is inverted
+     */
     public boolean isInverted(int edgeId) {
         return getPath(edgeId)<0;
     }
+    /**
+     * return the node targeted by the edge
+     * @param edgeId : identity of the edge
+     * @return the node targeted by the edge
+     */
     public int targetNodeId(int edgeId) {
         return isInverted(edgeId) ? ~getPath(edgeId) : getPath(edgeId);
     }
-
     private int getPath(int edgeId){return edgesBuffer.getInt(edgeId*10);}
+    /**
+     * return the length of the edge
+     * @param edgeId : identity of the edge
+     * @return the length of the edge
+     */
     public double length(int edgeId) {
         int length = Short.toUnsignedInt(edgesBuffer.getShort(edgeId*10+4));
         return Q28_4.asDouble(length);
     }
+    /**
+     * return the overall gain of altitude of a given edge
+     * @param edgeId : identity of the edge
+     * @return the overall gain of altitude the given edge
+     */
     public double elevationGain(int edgeId) {
         int elevation = Short.toUnsignedInt(edgesBuffer.getShort(edgeId*10+6));
         return Q28_4.asDouble(elevation);
     }
+    /**
+     * return true if the edge has a profile
+     * @param edgeId : identity of the edge
+     * @return true if the edge has a profile
+     */
     public boolean hasProfile(int edgeId) {
         int profile = profileIds.get(edgeId)>>>30;
         if(profile>0) {
@@ -33,7 +65,11 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
             return false;
         }
     }
-
+    /**
+     * return the array corresponding of the elevation samples of the given edge
+     * @param edgeId : identity of the edge
+     * @return the array corresponding of the elevation samples of the edge or 0 if the has no profile
+     */
     public float[] profileSamples(int edgeId) {
         switch(profileId(edgeId)){
             case 0:
@@ -141,7 +177,11 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
             return sample;
         }
     }
-
+    /**
+     * return all the ids of the attributes of a given edge
+     * @param edgeId : identity of the edge
+     * @return all the ids of the attributes of the edge
+     */
     public int attributesIndex(int edgeId) {
         int index = Short.toUnsignedInt(edgesBuffer.getShort(edgeId*10 + 8));
         return index;
