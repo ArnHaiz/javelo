@@ -59,21 +59,18 @@ public final class ElevationProfileComputer {
     }
 
     private static void fillMiddleGapes(float[] elevationProfile) {
-        int firstIndex = 0;
+        int firstIndex;
         int lastIndex;
         for(int i = 0; i<elevationProfile.length; i++) {
             if (Float.isNaN(elevationProfile[i])) {
-                while (!(Float.isNaN(elevationProfile[firstIndex]))) {
-                    firstIndex++;
-                }
+                firstIndex = i-1;
                 lastIndex = firstIndex+1;
                 do {
                     lastIndex++;
                 } while (Float.isNaN(elevationProfile[lastIndex]));
                 for (int j = firstIndex; j < lastIndex; j++) {
-                    elevationProfile[j] = (float) Math2.interpolate(firstIndex, lastIndex, ((double)(j - firstIndex)/(lastIndex - firstIndex)));
+                    elevationProfile[j] = (float) Math2.interpolate(elevationProfile[firstIndex], elevationProfile[lastIndex], ((double)(j-firstIndex)/(lastIndex-firstIndex)));
                 }
-                firstIndex = 0;
             }
 
         }
