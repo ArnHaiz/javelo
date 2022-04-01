@@ -20,9 +20,9 @@ public final class RouteComputer {
     }
     public Route bestRouteBetween(int startNodeId, int endNodeId) {
         Preconditions.checkArgument(!(startNodeId==endNodeId));
-        double[] distance = new double[endNodeId-startNodeId+1];
+        double[] distance = new double[Math.abs(endNodeId-startNodeId)+1];
         Arrays.fill(distance, Double.POSITIVE_INFINITY);
-        int[] predecessor = new int[endNodeId-startNodeId+1];
+        int[] predecessor = new int[Math.abs(endNodeId-startNodeId)+1];
         Arrays.fill(predecessor, 0);
         distance[startNodeId-startNodeId] = 0;
         LinkedList<Integer> inExploration = new LinkedList<>();
@@ -49,22 +49,21 @@ public final class RouteComputer {
                 }
             }
         }
-        if(predecessor[endNodeId-startNodeId]==0) {
+        if(predecessor[Math.abs(endNodeId-startNodeId)]==0) {
             return null;
         }else {
             List<Edge> edgePath = new ArrayList<>();
             int node = endNodeId;
             while (node >= startNodeId) {
-                int fromNode = predecessor[node-startNodeId-1];
-                int toNode = predecessor[node-startNodeId];
+                int fromNode = predecessor[Math.abs(node-startNodeId)];
+                int toNode = node;
                 int index = obtainEdgeIndex(fromNode, toNode);
                 double length = graph.edgeLength(graph.nodeOutEdgeId(fromNode, index));
                 DoubleUnaryOperator profile = graph.edgeProfile(graph.nodeOutEdgeId(fromNode, index));
                 edgePath.add(new Edge(fromNode, toNode, graph.nodePoint(fromNode), graph.nodePoint(toNode), length, profile));
-                node = node-predecessor[node-startNodeId];
+                node = node-predecessor[Math.abs(node-startNodeId)];
             }
-            Route path = new SingleRoute(edgePath);
-            return path;
+            return new SingleRoute(edgePath);
         }
 
     }
