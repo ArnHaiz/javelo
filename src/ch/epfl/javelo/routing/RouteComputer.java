@@ -11,14 +11,33 @@ import java.util.List;
 import java.util.function.DoubleUnaryOperator;
 
 import static java.util.Collections.reverse;
-
+/**
+ * @author Arnaud Haizmann (329072)
+ * @author Hervé Sérandour (328233)
+ *
+ * class representing an itinerary planner
+ */
 public final class RouteComputer {
     private final Graph graph;
     private final CostFunction costFunction;
+
+    /**
+     * construct an itinerary planner
+     * @param graph : graph where the itinerary will be planned
+     * @param costfunction : function that help to find an itinerary
+     */
     public RouteComputer(Graph graph, CostFunction costfunction) {
         this.graph = graph;
         this.costFunction = costfunction;
     }
+
+    /**
+     * return the best itinerary on the graph or 0 if there is no itinerary
+     * @param startNodeId : id of the starting node of the itinerary
+     * @param endNodeId : id of the ending node of the itinerary
+     * @throws IllegalArgumentException if the start node and the end node are the same
+     * @return the best itinerary on the graph or 0 if there is no itinerary
+     */
     public Route bestRouteBetween(int startNodeId, int endNodeId) {
         Preconditions.checkArgument(!(startNodeId==endNodeId));
         double[] distance = new double[graph.nodeCount()];

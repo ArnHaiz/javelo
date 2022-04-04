@@ -124,12 +124,12 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
         float elevation = Q28_4.asFloat(push);
         sample[0] = elevation;
         for(int i = 1; i<sample.length; i = i+2) {
-            int elevationToExtract = Short.toUnsignedInt(elevations.get(indexProfile(edgeId)+i));
-            int push1 = elevationToExtract>>>8;
+            int elevationToExtract = Short.toUnsignedInt(elevations.get(indexProfile(edgeId)+Math2.ceilDiv(i,2)));
+            int push1 = Bits.extractSigned(elevationToExtract, 8, 8);
             float leftPart = Q28_4.asFloat(push1);
             sample[i] = leftPart + sample[i-1];
             if(i+1 < sample.length) {
-                int push2 = Bits.extractUnsigned(elevationToExtract, 0, 8);
+                int push2 = Bits.extractSigned(elevationToExtract, 0, 8);
                 float rightPart = Q28_4.asFloat(push2);
                 sample[i+1] = rightPart + sample[i];
             }
@@ -143,22 +143,22 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
         float elevation = Q28_4.asFloat(push);
         sample[0] = elevation;
         for(int i = 1; i< sample.length; i = i+4) {
-            int elevationToExtract = Short.toUnsignedInt(elevations.get(indexProfile(edgeId)+(i%4)));
-            int push1 = elevationToExtract>>>4;
+            int elevationToExtract = Short.toUnsignedInt(elevations.get(indexProfile(edgeId)+Math2.ceilDiv(i,4)));
+            int push1 = Bits.extractSigned(elevationToExtract, 12, 4);
             float leftPart = Q28_4.asFloat(push1);
             sample[i] = leftPart + sample[i-1];
             if(i+1<sample.length) {
-                int push2 = Bits.extractUnsigned(elevationToExtract, 8, 4);
+                int push2 = Bits.extractSigned(elevationToExtract, 8, 4);
                 float leftMiddlePart = Q28_4.asFloat(push2);
                 sample[i+1] = leftMiddlePart+sample[i];
             }
             if(i+2<sample.length) {
-                int push3 = Bits.extractUnsigned(elevationToExtract, 4, 4);
+                int push3 = Bits.extractSigned(elevationToExtract, 4, 4);
                 float rightMiddlePart = Q28_4.asFloat(push3);
                 sample[i+2] = rightMiddlePart+sample[i+1];
             }
             if(i+3<sample.length) {
-                int push4 = Bits.extractUnsigned(elevationToExtract, 4, 4);
+                int push4 = Bits.extractSigned(elevationToExtract, 0, 4);
                 float rightPart = Q28_4.asFloat(push4);
                 sample[i+3] = rightPart+sample[i+2];
             }

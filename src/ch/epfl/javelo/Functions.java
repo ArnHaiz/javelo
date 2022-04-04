@@ -19,7 +19,7 @@ public final class Functions {
      * return a function obtained by linear interpolation on the samples, regularly spaced out between 0 and xMax
      * and throw an exception if there are less than 2 samples
      * @param samples : array of samples
-     * @param xMax : max value of the array
+     * @param xMax : position of the last index of the array
      * @throws IllegalArgumentException if there are less than 2 samples
      * @return a function obtained by linear interpolation on the samples, regularly spaced out between 0 and xMax
      */
