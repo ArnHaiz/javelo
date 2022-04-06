@@ -6,8 +6,20 @@ import ch.epfl.javelo.Preconditions;
 import java.util.Arrays;
 
 import static java.lang.Float.NaN;
-
+/**
+ * @author Arnaud Haizmann (329072)
+ * @author Hervé Sérandour (328233)
+ *
+ * class representing a clculator of profile in length
+ */
 public final class ElevationProfileComputer {
+    /**
+     * return the profile in length of a route and guaranteed that the length between each profile is at most maxStepLength
+     * @param route : route given to have the in profile in length
+     * @param maxStepLength : maximal distance between each sample
+     * @throws IllegalArgumentException maxStepLength is not strictly positive
+     * @return the profile in length of a route and guaranteed that the length between each profile is at most maxStepLength
+     */
     public static ElevationProfile elevationProfile(Route route, double maxStepLength) {
         Preconditions.checkArgument(maxStepLength>0);
         int nbSamples = (int)Math.ceil(route.length()/maxStepLength) +1;

@@ -1,24 +1,17 @@
 package ch.epfl.javelo.routing;
 
-import ch.epfl.javelo.Functions;
 import ch.epfl.javelo.data.Graph;
-import ch.epfl.javelo.projection.Ch1903;
 import ch.epfl.javelo.projection.PointCh;
-import ch.epfl.javelo.routing.*;
 import ch.epfl.test.KmlPrinter;
-import ch.epfl.javelo.routing.RouteComputerTest;
 import org.junit.jupiter.api.Test;
 
-import java.awt.*;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.DoubleUnaryOperator;
 
 import static ch.epfl.javelo.routing.ElevationProfileComputer.elevationProfile;
-import static ch.epfl.test.TestUtile.*;
 import static ch.epfl.test.TestRandomizer.newRandom;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -52,14 +45,14 @@ class MultiRouteTest {
 
     // Routes created with RouteComputer
     List<Route> routesList = new ArrayList<>();
-    SingleRoute routep1 = (SingleRoute) RouteComputerTest.bestRoutePoint(epfl, renens);
-    SingleRoute routep2 = (SingleRoute) RouteComputerTest.bestRoutePoint(renens, malombre);
-    SingleRoute routep3 = (SingleRoute) RouteComputerTest.bestRoutePoint(malombre, courroux);
+    SingleRoute routep1 = (SingleRoute) RouteComputerTestProf.bestRoutePoint(epfl, renens);
+    SingleRoute routep2 = (SingleRoute) RouteComputerTestProf.bestRoutePoint(renens, malombre);
+    SingleRoute routep3 = (SingleRoute) RouteComputerTestProf.bestRoutePoint(malombre, courroux);
 
     List<Route> exRoutesList = new ArrayList<>();
     PointCh chateauOuchy = new PointCh(2537738.1, 1150924.3);
     PointCh tourSauvablin = new PointCh(2538620.4, 1154103.8);
-    Route givenRoute = RouteComputerTest.bestRoutePoint(chateauOuchy, tourSauvablin);
+    Route givenRoute = RouteComputerTestProf.bestRoutePoint(chateauOuchy, tourSauvablin);
 
     public MultiRoute routeMaker() {
         routesList.add(routep1);
