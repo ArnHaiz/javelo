@@ -10,6 +10,7 @@ import static ch.epfl.test.TestRandomizer.RANDOM_ITERATIONS;
 import static org.junit.jupiter.api.Assertions.*;
 
 class RoutePointTestProf {
+
     @Test
     void routePointNoneIsDefinedCorrectly() {
         assertNull(RoutePoint.NONE.point());

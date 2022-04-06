@@ -28,6 +28,8 @@ public final class SingleRoute implements Route {
     public SingleRoute(List<Edge> edges) {
         Preconditions.checkArgument(edges.size() != 0);
 
+        //TODO edges.stream().mapToDouble(Edge::length).sum();
+
         this.edges = List.copyOf(edges);
         positionList = new double[edges().size()];
 
@@ -51,7 +53,12 @@ public final class SingleRoute implements Route {
 
     private int indexOf(double position) {
         int index = Arrays.binarySearch(positionList, position);
-        return index >= 0 ? index : Math.abs(index) - 2;
+        if (index >= 0) {
+            return index;
+        } else {
+            index = Math.abs(index) - 2;
+            return index == edges.size() ? index - 1 : index;
+        }
     }
 
     @Override
@@ -61,7 +68,6 @@ public final class SingleRoute implements Route {
 
     @Override
     public double length() {
-        //TODO edges.stream().mapToDouble(Edge::length).sum();
         return length;
     }
 
@@ -79,6 +85,7 @@ public final class SingleRoute implements Route {
     public PointCh pointAt(double position) {
         position = Math2.clamp(0, position, length);
         int rightEdgeId = indexOf(position);
+
         return edges.get(rightEdgeId).pointAt(position - positionList[rightEdgeId]);
     }
 
@@ -86,6 +93,7 @@ public final class SingleRoute implements Route {
     public double elevationAt(double position) {
         position = Math2.clamp(0, position, length);
         int rightEdgeId = indexOf(position);
+
         return edges.get(rightEdgeId).elevationAt(position - positionList[rightEdgeId]);
     }
 
@@ -94,6 +102,7 @@ public final class SingleRoute implements Route {
         position = Math2.clamp(0, position, length);
         int rightEdgeId = indexOf(position);
         Edge edge = edges.get(rightEdgeId);
+
         return position - positionList[rightEdgeId] <
                 edge.length() / 2.0 ?
                 edge.fromNodeId() :
@@ -107,9 +116,11 @@ public final class SingleRoute implements Route {
         double tempDistance = 0;
         double totalDistance = 0;
         PointCh thisPoint = null;
+
         for (Edge edge : edges) {
             closestPoint = edge.pointAt(Math2.clamp(0, edge.positionClosestTo(point), edge.length()));
             double thisDistance = closestPoint.distanceTo(point);
+
             if (minDistance > thisDistance) {
                 minDistance = thisDistance;
                 thisPoint = closestPoint;
@@ -119,6 +130,7 @@ public final class SingleRoute implements Route {
                 tempDistance += edge.length();
             }
         }
+
         return new RoutePoint(thisPoint, totalDistance, minDistance);
     }
 }

@@ -4,9 +4,7 @@ import ch.epfl.javelo.Math2;
 import ch.epfl.javelo.Preconditions;
 import ch.epfl.javelo.projection.PointCh;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Arnaud Haizmann (329072)
@@ -19,7 +17,7 @@ public final class MultiRoute implements Route {
     private final double[] positionList;
     private final List<PointCh> points;
     private final double length;
-    private final ArrayList<Edge> edges;
+    private final List<Edge> edges;
 
     /**
      * public constructor of the MultiRoute class
@@ -33,12 +31,14 @@ public final class MultiRoute implements Route {
         this.segments = List.copyOf(segments);
         var tempPoints = new ArrayList<PointCh>();
         double tempLength = 0;
-        ArrayList<Edge> tempEdges = new ArrayList<>();
+        var tempEdges = new ArrayList<Edge>();
 
-        for (Route tempSegment : segments) {
-            tempPoints.addAll(tempSegment.points());
-            tempLength += tempSegment.length();
-            tempEdges.addAll(tempSegment.edges());
+        tempPoints.add(segments.get(0).points().get(0));
+
+        for (Route route : this.segments) {
+            tempPoints.addAll(route.points().subList(1, route.points().size()));
+            tempLength += route.length();
+            tempEdges.addAll(route.edges());
         }
 
         positionList = new double[segments.size() + 1];
@@ -50,7 +50,7 @@ public final class MultiRoute implements Route {
 
         points = List.copyOf(tempPoints);
         length = tempLength;
-        edges = tempEdges;
+        edges = List.copyOf(tempEdges);
     }
 
     private int indexOf(double position) {
@@ -59,14 +59,23 @@ public final class MultiRoute implements Route {
             return index;
         } else {
             index = Math.abs(index) - 2;
-            return index == segments.size() ? --index : index;
+            return index == segments.size() ? index - 1 : index;
         }
     }
 
     @Override
     public int indexOfSegmentAt(double position) {
         position = Math2.clamp(0, position, length);
-        return indexOf(position);
+        int index = 0;
+
+        for (Route route : segments) {
+            if (position <= 0) break;
+            index += route.indexOfSegmentAt(position) + 1;
+            //index += Integer.max(route.indexOfSegmentAt(position), position < route.length() ? 0 : 1) ;
+            position -= route.length();
+        }
+
+        return index - 1;
     }
 
     @Override
@@ -108,13 +117,21 @@ public final class MultiRoute implements Route {
     @Override
     public RoutePoint pointClosestTo(PointCh point) {
         RoutePoint closestPoint = RoutePoint.NONE;
-        double minDistance = Double.MAX_VALUE;
+        double atLength = 0;
 
-        for (Route segment : segments) {
-            if (minDistance > segment.pointClosestTo(point).distanceToReference()) {
-                closestPoint = segment.pointClosestTo(point);
+        for (Route route : segments) {
+            //closestPoint = closestPoint.min(route.pointClosestTo(point));
+            if (closestPoint.distanceToReference() >= route.pointClosestTo(point).distanceToReference()) {
+                closestPoint = route.pointClosestTo(point).withPositionShiftedBy(atLength);
             }
+            atLength += route.length();
         }
         return closestPoint;
+        //TODO yes
+        /* return segments.stream()
+                .map(r -> r.pointClosestTo(point))
+                .min(Comparator.comparingDouble(RoutePoint::distanceToReference))
+                .orElse(RoutePoint.NONE);
+    */
     }
 }
