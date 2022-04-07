@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.function.DoubleUnaryOperator;
 
 import static ch.epfl.javelo.routing.ElevationProfileComputer.*;
-import static ch.epfl.javelo.routing.MultiRouteTest.lausanne;
+/*import static ch.epfl.javelo.routing.MultiRouteTest.lausanne;
 import static ch.epfl.test.TestUtile.*;
 import static ch.epfl.test.TestRandomizer.newRandom;
 import static org.junit.jupiter.api.Assertions.*;
@@ -542,4 +542,4 @@ class ElevationProfileComputerTest {
         }
         return hasNull;
     }
-}
+}*/

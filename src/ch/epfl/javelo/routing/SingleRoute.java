@@ -43,8 +43,9 @@ public final class SingleRoute implements Route {
 
             if (i == 0)
                 positionList[i] = 0;
-            else
-                positionList[i] = positionList[i - 1] + edges.get(i).length();
+            else {
+                positionList[i] = positionList[i - 1] + edges.get(i-1).length();
+            }
         }
 
         points = List.copyOf(tempPoints);

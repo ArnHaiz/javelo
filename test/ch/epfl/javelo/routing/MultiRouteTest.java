@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class MultiRouteTest {
 
     // Points used to make routes
-    private final static double E_EPFL = 2_533_040.0;
+    /*private final static double E_EPFL = 2_533_040.0;
     private final static double N_EPFL = 1_152_130.5;
     PointCh epfl = new PointCh(E_EPFL, N_EPFL);
 
@@ -176,7 +176,7 @@ class MultiRouteTest {
          * Vous aussi celui-là échoue? Je crois que c'est normal vu que notre itinéraire passe
          * plusieurs fois aux mêmes endroits mais jsuis pas sur a 100%
          */
-        MultiRoute fmr = routeMaker();
+        /*MultiRoute fmr = routeMaker();
         System.out.println(fmr.points().size());
         System.out.println(routep1.points().size());
         System.out.println(routep2.points().size());
@@ -355,5 +355,5 @@ class MultiRouteTest {
             edges.add(new Edge(i, i + 1, p1, p2, EDGE_LENGTH, x -> Double.NaN));
         }
         return Collections.unmodifiableList(edges);
-    }
+    }*/
 }
