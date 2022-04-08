@@ -2,7 +2,7 @@ package ch.epfl.javelo.projection;
 
 /**
  * @author Hervé Sérandour (328233)
- *
+ * <p>
  * class representing swiss bounds.
  */
 public final class SwissBounds {

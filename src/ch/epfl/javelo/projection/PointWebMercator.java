@@ -1,33 +1,34 @@
 package ch.epfl.javelo.projection;
 
 import ch.epfl.javelo.Preconditions;
+
 /**
- * @author Hervé Sérandour (328233)
- *
- * record representing a point in the system WebMercator.
- *
  * @param x : x coordinate of the point.
  * @param y : y coordinate of the point.
+ * @author Hervé Sérandour (328233)
+ * <p>
+ * record representing a point in the system WebMercator.
  */
 public record PointWebMercator(double x, double y) {
     /**
      * construct a PointWebMercator
+     *
      * @throws IllegalArgumentException if the coordinates given aren't between 0 and 1
      */
     public PointWebMercator {
-        Preconditions.checkArgument(((x>=0)&&(x<=1)&&(y>=0)&&(y<=1)));
+        Preconditions.checkArgument(((x >= 0) && (x <= 1) && (y >= 0) && (y <= 1)));
     }
 
     /**
      * return the point that have the coordinates given at a certain zoom level
      *
      * @param zoomLevel : zoom level of the point
-     * @param x : x coordinate of the point
-     * @param y : y coordinate of the point
+     * @param x         : x coordinate of the point
+     * @param y         : y coordinate of the point
      * @return the point that have the coordinates given at a certain zoom level
      */
     public static PointWebMercator of(int zoomLevel, double x, double y) {
-        return new PointWebMercator(Math.scalb(x,-(zoomLevel+8)),Math.scalb(y,-(zoomLevel+8)));
+        return new PointWebMercator(Math.scalb(x, -(zoomLevel + 8)), Math.scalb(y, -(zoomLevel + 8)));
     }
 
     /**
@@ -39,7 +40,7 @@ public record PointWebMercator(double x, double y) {
     public static PointWebMercator ofPointCh(PointCh pointCh) {
         double x = WebMercator.x(pointCh.lon());
         double y = WebMercator.y(pointCh.lat());
-        return new PointWebMercator(x,y);
+        return new PointWebMercator(x, y);
     }
 
     /**
@@ -49,7 +50,7 @@ public record PointWebMercator(double x, double y) {
      * @return the coordinate at a given zoom level
      */
     public double xAtZoomLevel(int zoomLevel) {
-        return Math.scalb(x ,8+zoomLevel);
+        return Math.scalb(x, 8 + zoomLevel);
     }
 
     /**
@@ -59,8 +60,9 @@ public record PointWebMercator(double x, double y) {
      * @return the coordinate at a given zoom level
      */
     public double yAtZoomLevel(int zoomLevel) {
-        return Math.scalb(y ,8+zoomLevel);
+        return Math.scalb(y, 8 + zoomLevel);
     }
+
     /**
      * return the longitude in radiant
      *
@@ -69,6 +71,7 @@ public record PointWebMercator(double x, double y) {
     public double lon() {
         return WebMercator.lon(x);
     }
+
     /**
      * return the latitude in radiant
      *
@@ -83,12 +86,12 @@ public record PointWebMercator(double x, double y) {
      *
      * @return the coordinate of the point in the swiss coordinates if the point is in the swiss bounds otherwise null
      */
-    public PointCh toPointCh () {
-        double e = Ch1903.e(lon(),lat());
-        double n = Ch1903.n(lon(),lat());
-        if(SwissBounds.containsEN(e,n)){
-            return new PointCh(e,n);
-        }else{
+    public PointCh toPointCh() {
+        double e = Ch1903.e(lon(), lat());
+        double n = Ch1903.n(lon(), lat());
+        if (SwissBounds.containsEN(e, n)) {
+            return new PointCh(e, n);
+        } else {
             return null;
         }
     }

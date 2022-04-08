@@ -18,7 +18,7 @@ import java.util.function.DoubleUnaryOperator;
 /**
  * @author Arnaud Haizmann (329072)
  * @author Hervé Sérandour (328233)
- *
+ * <p>
  * class representing a graph
  */
 public final class Graph {
@@ -29,11 +29,12 @@ public final class Graph {
 
     /**
      * return the graph given by the data obtained
+     *
      * @param basePath : directory of the data
-     * @throws IOException if there is an error in the load of the data
      * @return the graph given by the data obtained
+     * @throws IOException if there is an error in the load of the data
      */
-    public static Graph loadFrom(Path basePath)throws IOException {
+    public static Graph loadFrom(Path basePath) throws IOException {
         Path nodesPath = basePath.resolve("nodes.bin");
         Path sectorsPath = basePath.resolve("sectors.bin");
         Path edgesPath = basePath.resolve("edges.bin");
@@ -52,7 +53,7 @@ public final class Graph {
              FileChannel channelEdges = FileChannel.open(edgesPath);
              FileChannel channelAttributes = FileChannel.open(attributeSetsPath);
              FileChannel channelElevations = FileChannel.open(elevationsPath);
-             FileChannel channelProfile_ids = FileChannel.open(profile_idsPath)){
+             FileChannel channelProfile_ids = FileChannel.open(profile_idsPath)) {
 
             channelNodesBuffer = channelNodes.map(FileChannel.MapMode.READ_ONLY, 0, channelNodes.size()).asIntBuffer();
             channelSectorsBuffer = channelSectors.map(FileChannel.MapMode.READ_ONLY, 0, channelSectors.size());
@@ -62,7 +63,7 @@ public final class Graph {
             channelAttributeSetsBuffer = channelAttributes.map(FileChannel.MapMode.READ_ONLY, 0, channelAttributes.size()).asLongBuffer();
         }
         List<AttributeSet> attributeSets = new ArrayList<>();
-        for(int i = 0; i< channelAttributeSetsBuffer.capacity(); i++) {
+        for (int i = 0; i < channelAttributeSetsBuffer.capacity(); i++) {
             attributeSets.add(new AttributeSet(channelAttributeSetsBuffer.get(i)));
         }
 
@@ -74,9 +75,10 @@ public final class Graph {
 
     /**
      * construct the graph with the given parameters
-     * @param nodes : data of the graph's nodes
-     * @param sectors : data of the graph's sectors
-     * @param edges : data of the graph's edges
+     *
+     * @param nodes         : data of the graph's nodes
+     * @param sectors       : data of the graph's sectors
+     * @param edges         : data of the graph's edges
      * @param attributeSets : data of the attributes attached on the nodes and edges
      */
     public Graph(GraphNodes nodes, GraphSectors sectors, GraphEdges edges, List<AttributeSet> attributeSets) {
@@ -88,6 +90,7 @@ public final class Graph {
 
     /**
      * return the total number of nodes of the graph
+     *
      * @return the total number of nodes of the graph
      */
     public int nodeCount() {
@@ -96,6 +99,7 @@ public final class Graph {
 
     /**
      * return the position of the node of given id
+     *
      * @param nodeId : id of the node
      * @return the position of the node of given id
      */
@@ -105,6 +109,7 @@ public final class Graph {
 
     /**
      * return the number of edges going out of a given node
+     *
      * @param nodeId : id of the node
      * @return the number of edges going out of a given node
      */
@@ -114,7 +119,8 @@ public final class Graph {
 
     /**
      * return the id i-th edge going out of the given node
-     * @param nodeId : id of the node
+     *
+     * @param nodeId    : id of the node
      * @param edgeIndex : index of the edge
      * @return the id i-th edge going out of the given node
      */
@@ -124,27 +130,28 @@ public final class Graph {
 
     /**
      * return the closet node to a given position or -1 if there isn't any node in the max distance given
-     * @param point : coordinate of the point
+     *
+     * @param point          : coordinate of the point
      * @param searchDistance : max distance of search
      * @return the closet node to a given position or -1 if there isn't any node in the max distance given
      */
     public int nodeClosestTo(PointCh point, double searchDistance) {
         int nodeId = 0;
-        double distance = searchDistance*searchDistance;
+        double distance = searchDistance * searchDistance;
         int counter = 0;
         List<GraphSectors.Sector> targetSector = sectors.sectorsInArea(point, searchDistance);
-        for(int i = 0; i<targetSector.size(); i++) {
+        for (int i = 0; i < targetSector.size(); i++) {
             GraphSectors.Sector workSector = targetSector.get(i);
-            for(int j = workSector.startNodeId(); j<workSector.endNodeId(); j++) {
+            for (int j = workSector.startNodeId(); j < workSector.endNodeId(); j++) {
                 PointCh target = nodePoint(j);
-                if(target.squaredDistanceTo(point)<=distance) {
+                if (target.squaredDistanceTo(point) <= distance) {
                     nodeId = j;
-                    counter ++;
+                    counter++;
                     distance = target.squaredDistanceTo(point);
                 }
             }
         }
-        if(counter==0) {
+        if (counter == 0) {
             nodeId = -1;
         }
         return nodeId;
@@ -152,6 +159,7 @@ public final class Graph {
 
     /**
      * return the destination's node of a given edge
+     *
      * @param edgeId : id of the edge
      * @return the destination's node of a given edge
      */
@@ -161,6 +169,7 @@ public final class Graph {
 
     /**
      * return true if the edge is inverted
+     *
      * @param edgeId : id of the edge
      * @return true if the edge is inverted
      */
@@ -170,6 +179,7 @@ public final class Graph {
 
     /**
      * return all the OSM attributes attached to a given edge
+     *
      * @param edgeId : id of the edge
      * @return all the OSM attributes attached to a given edge
      */
@@ -179,6 +189,7 @@ public final class Graph {
 
     /**
      * return the length of a given edge
+     *
      * @param edgeId : id of the edge
      * @return the length of a given edge
      */
@@ -188,6 +199,7 @@ public final class Graph {
 
     /**
      * return the total positive height difference
+     *
      * @param edgeId : id of the edge
      * @return the total positive height difference
      */
@@ -197,16 +209,17 @@ public final class Graph {
 
     /**
      * return the profile in length of a given edge, under the form of a function,
-     *         if the edge has no profile return Double.Nan
+     * if the edge has no profile return Double.Nan
+     *
      * @param edgeId : id of the edge
      * @return the profile in length of a given edge, under the form of a function,
-     *         if the edge has no profile return Double.Nan
+     * if the edge has no profile return Double.Nan
      */
     public DoubleUnaryOperator edgeProfile(int edgeId) {
         float[] sample = edges.profileSamples(edgeId);
-        if(!edges.hasProfile(edgeId)) {
+        if (!edges.hasProfile(edgeId)) {
             return Functions.constant(Double.NaN);
-        }else{
+        } else {
             return Functions.sampled(sample, edges.length(edgeId));
         }
     }

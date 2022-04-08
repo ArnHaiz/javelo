@@ -2,16 +2,19 @@ package ch.epfl.javelo.routing;
 
 import ch.epfl.javelo.Preconditions;
 import ch.epfl.javelo.data.Graph;
-import ch.epfl.javelo.data.GraphNodes;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.PriorityQueue;
 import java.util.function.DoubleUnaryOperator;
 
 import static java.util.Collections.reverse;
+
 /**
  * @author Arnaud Haizmann (329072)
  * @author Hervé Sérandour (328233)
- *
+ * <p>
  * class representing an itinerary planner
  */
 public final class RouteComputer {
@@ -20,7 +23,8 @@ public final class RouteComputer {
 
     /**
      * construct an itinerary planner
-     * @param graph : graph where the itinerary will be planned
+     *
+     * @param graph        : graph where the itinerary will be planned
      * @param costfunction : function that help to find an itinerary
      */
     public RouteComputer(Graph graph, CostFunction costfunction) {
@@ -30,10 +34,11 @@ public final class RouteComputer {
 
     /**
      * return the best itinerary on the graph or 0 if there is no itinerary
+     *
      * @param startNodeId : id of the starting node of the itinerary
-     * @param endNodeId : id of the ending node of the itinerary
-     * @throws IllegalArgumentException if the start node and the end node are the same
+     * @param endNodeId   : id of the ending node of the itinerary
      * @return the best itinerary on the graph or 0 if there is no itinerary
+     * @throws IllegalArgumentException if the start node and the end node are the same
      */
     public Route bestRouteBetween(int startNodeId, int endNodeId) {
         /**
@@ -50,7 +55,7 @@ public final class RouteComputer {
                 return Float.compare(this.distance, that.distance);
             }
         }
-        Preconditions.checkArgument(!(startNodeId==endNodeId));
+        Preconditions.checkArgument(!(startNodeId == endNodeId));
         double[] distance = new double[graph.nodeCount()];
         Arrays.fill(distance, Double.POSITIVE_INFINITY);
         int[] predecessor = new int[graph.nodeCount()];
@@ -58,9 +63,9 @@ public final class RouteComputer {
         distance[startNodeId] = 0;
         PriorityQueue<WeightedNode> inExploration = new PriorityQueue<>();
         inExploration.add(new WeightedNode(startNodeId, 0));
-        while(!inExploration.isEmpty()) {
+        while (!inExploration.isEmpty()) {
             int node = inExploration.remove().nodeId;
-            if(!(distance[node]==Float.NEGATIVE_INFINITY)) {
+            if (!(distance[node] == Float.NEGATIVE_INFINITY)) {
                 if (node == endNodeId) {
                     break;
                 }
@@ -79,9 +84,9 @@ public final class RouteComputer {
                 distance[node] = Float.NEGATIVE_INFINITY;
             }
         }
-        if(predecessor[endNodeId]==0) {
+        if (predecessor[endNodeId] == 0) {
             return null;
-        }else {
+        } else {
             List<Edge> edgePath = new ArrayList<>();
             int node = endNodeId;
             while (!(node == startNodeId)) {
@@ -98,10 +103,11 @@ public final class RouteComputer {
             return new SingleRoute(edgePath);
         }
     }
+
     private int obtainEdgeIndex(int startNodeId, int endNodeId) {
         int index = 0;
-        for(int i = 0; i < graph.nodeOutDegree(startNodeId); i++) {
-            if(graph.edgeTargetNodeId(graph.nodeOutEdgeId(startNodeId, i))==endNodeId) {
+        for (int i = 0; i < graph.nodeOutDegree(startNodeId); i++) {
+            if (graph.edgeTargetNodeId(graph.nodeOutEdgeId(startNodeId, i)) == endNodeId) {
                 index = i;
             }
         }
