@@ -23,7 +23,7 @@ public final class SingleRoute implements Route {
     /**
      * public constructor of the <code>SingleRoute</code> class.
      *
-     * @param edges
+     * @param edges a list of type edges
      */
     public SingleRoute(List<Edge> edges) {
         Preconditions.checkArgument(edges.size() != 0);

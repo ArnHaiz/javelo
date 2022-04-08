@@ -14,7 +14,7 @@ public interface Route {
     /**
      * returns the index of the segment at the given <code>position</code>.
      *
-     * @param position
+     * @param position the position at which we want to look for the index
      * @return the index of the segment at the given <code>position</code>.
      */
     int indexOfSegmentAt(double position);
@@ -22,7 +22,7 @@ public interface Route {
     /**
      * returns the length of the itinerary in meters.
      *
-     * @return the lengrh of the itinerary in meters.
+     * @return the length of the itinerary in meters.
      */
     double length();
 
@@ -43,7 +43,7 @@ public interface Route {
     /**
      * returns the point at the given <code>position</code>.
      *
-     * @param position
+     * @param position the distance at which to look for the point
      * @return the point at the given <code>position</code>.
      */
     PointCh pointAt(double position);
@@ -51,7 +51,7 @@ public interface Route {
     /**
      * returns the elevation at the given <code>position</code>.
      *
-     * @param position
+     * @param position the distance at which to look for the elevation
      * @return the elevation at the given <code>position</code>.
      */
     double elevationAt(double position);
@@ -59,7 +59,7 @@ public interface Route {
     /**
      * returns the id of the node contained in the itinerary closest to the given <code>position</code>.
      *
-     * @param position
+     * @param position the distance at which to look for the closest node
      * @return the id of the node contained in the itinerary closest to the given <code>position</code>.
      */
     int nodeClosestTo(double position);
@@ -67,7 +67,7 @@ public interface Route {
     /**
      * returns the <code>RoutePoint</code> closest to the given <code>point</code>.
      *
-     * @param point
+     * @param point the reference point of which we want the closest
      * @return the <code>RoutePoint</code> closest to the given <code>point</code>.
      */
     RoutePoint pointClosestTo(PointCh point);

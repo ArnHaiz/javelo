@@ -9,21 +9,21 @@ import java.util.*;
 /**
  * @author Arnaud Haizmann (329072)
  * @author Hervé Sérandour (328233)
- * <p>
+ *
  * class representing an itinerary composed of multiple itineraries.
  */
 public final class MultiRoute implements Route {
     private final List<Route> segments;
-    private final double[] positionList;
-    private final List<PointCh> points;
-    private final double length;
     private final List<Edge> edges;
+    private final List<PointCh> points;
+    private final double[] positionList;
+    private final double length;
 
     /**
      * public constructor of the MultiRoute class
      * initializing an itinerary composed of the routes in <code>segments</code>.
      *
-     * @param segments
+     * @param segments a list of routes
      */
     public MultiRoute(List<Route> segments) {
         Preconditions.checkArgument(segments.size() != 0);
