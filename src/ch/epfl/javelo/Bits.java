@@ -7,7 +7,8 @@ package ch.epfl.javelo;
  */
 public final class Bits {
     /**
-     * extract of a 32 bits vector the bit sequence of given length and at the start bit given by taking count of the sign
+     * extract of a 32 bits vector the bit sequence of given length
+     *         and at the start bit given by taking count of the sign
      * @param value : 32 bits vector
      * @param start : start bit
      * @param length : length wanted
@@ -23,7 +24,8 @@ public final class Bits {
         return rightPush;
     }
     /**
-     * extract of a 32 bits vector the bit sequence of given length and at the start bit given without taking count of the sign
+     * extract of a 32 bits vector the bit sequence of given length
+     *         and at the start bit given without taking count of the sign
      * @param value : 32 bits vector
      * @param start : start bit
      * @param length : length wanted
