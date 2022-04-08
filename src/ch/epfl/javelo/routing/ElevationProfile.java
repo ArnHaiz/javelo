@@ -91,9 +91,13 @@ public final class ElevationProfile {
     }
 
     /**
-     * return the altitude at a given position, if the position is negative return the first sample, if the position is greater than the length return the last sample
+     * return the altitude at a given position,
+     *         if the position is negative return the first sample,
+     *         if the position is greater than the length return the last sample
      * @param position : position on the profile
-     * @return the altitude at a given position, if the position is negative return the first sample, if the position is greater than the length return the last sample
+     * @return the altitude at a given position,
+     *         if the position is negative return the first sample,
+     *         if the position is greater than the length return the last sample
      */
     public double elevationAt(double position) {
         return Functions.sampled(elevationSamples, length).applyAsDouble(position);

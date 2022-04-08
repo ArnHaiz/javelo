@@ -11,6 +11,7 @@ import ch.epfl.javelo.Preconditions;
  */
 public record PointWebMercator(double x, double y) {
     /**
+     * construct a PointWebMercator
      * @throws IllegalArgumentException if the coordinates given aren't between 0 and 1
      */
     public PointWebMercator {

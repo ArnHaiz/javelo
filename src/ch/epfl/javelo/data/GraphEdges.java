@@ -59,11 +59,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
      */
     public boolean hasProfile(int edgeId) {
         int profile = profileIds.get(edgeId)>>>30;
-        if(profile>0) {
-            return true;
-        }else{
-            return false;
-        }
+        return profile > 0;
     }
     /**
      * return the array corresponding of the elevation samples of the given edge
@@ -183,7 +179,6 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
      * @return all the ids of the attributes of the edge
      */
     public int attributesIndex(int edgeId) {
-        int index = Short.toUnsignedInt(edgesBuffer.getShort(edgeId*10 + 8));
-        return index;
+        return Short.toUnsignedInt(edgesBuffer.getShort(edgeId*10 + 8));
     }
 }

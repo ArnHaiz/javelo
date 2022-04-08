@@ -30,8 +30,8 @@ public final class Graph {
     /**
      * return the graph given by the data obtained
      * @param basePath : directory of the data
-     * @return the graph given by the data obtained
      * @throws IOException if there is an error in the load of the data
+     * @return the graph given by the data obtained
      */
     public static Graph loadFrom(Path basePath)throws IOException {
         Path nodesPath = basePath.resolve("nodes.bin");
@@ -100,8 +100,7 @@ public final class Graph {
      * @return the position of the node of given id
      */
     public PointCh nodePoint(int nodeId) {
-        PointCh nodePos = new PointCh(nodes.nodeE(nodeId), nodes.nodeN(nodeId));
-        return nodePos;
+        return new PointCh(nodes.nodeE(nodeId), nodes.nodeN(nodeId));
     }
 
     /**
@@ -197,9 +196,11 @@ public final class Graph {
     }
 
     /**
-     * return the profile in length of a given edge, under the form of a function, if the edge has no profile return Double.Nan
+     * return the profile in length of a given edge, under the form of a function,
+     *         if the edge has no profile return Double.Nan
      * @param edgeId : id of the edge
-     * @return the profile in length of a given edge, under the form of a function, if the edge has no profile return Double.Nan
+     * @return the profile in length of a given edge, under the form of a function,
+     *         if the edge has no profile return Double.Nan
      */
     public DoubleUnaryOperator edgeProfile(int edgeId) {
         float[] sample = edges.profileSamples(edgeId);

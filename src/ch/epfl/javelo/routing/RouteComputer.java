@@ -36,6 +36,13 @@ public final class RouteComputer {
      * @return the best itinerary on the graph or 0 if there is no itinerary
      */
     public Route bestRouteBetween(int startNodeId, int endNodeId) {
+        /**
+         * @author prof
+         *
+         * recorde representing a node with weight given by its distance
+         * @param nodeId : id of the node
+         * @param distance : weight distance attached to the node
+         */
         record WeightedNode(int nodeId, float distance)
                 implements Comparable<WeightedNode> {
             @Override

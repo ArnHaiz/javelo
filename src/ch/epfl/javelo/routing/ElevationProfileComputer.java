@@ -14,11 +14,13 @@ import static java.lang.Float.NaN;
  */
 public final class ElevationProfileComputer {
     /**
-     * return the profile in length of a route and guaranteed that the length between each profile is at most maxStepLength
+     * return the profile in length of a route
+     *         and guaranteed that the length between each profile is at most maxStepLength
      * @param route : route given to have the in profile in length
      * @param maxStepLength : maximal distance between each sample
      * @throws IllegalArgumentException maxStepLength is not strictly positive
-     * @return the profile in length of a route and guaranteed that the length between each profile is at most maxStepLength
+     * @return the profile in length of a route
+     *         and guaranteed that the length between each profile is at most maxStepLength
      */
     public static ElevationProfile elevationProfile(Route route, double maxStepLength) {
         Preconditions.checkArgument(maxStepLength>0);
@@ -81,7 +83,9 @@ public final class ElevationProfileComputer {
                     lastIndex++;
                 } while (Float.isNaN(elevationProfile[lastIndex]));
                 for (int j = firstIndex; j < lastIndex; j++) {
-                    elevationProfile[j] = (float) Math2.interpolate(elevationProfile[firstIndex], elevationProfile[lastIndex], ((double)(j-firstIndex)/(lastIndex-firstIndex)));
+                    elevationProfile[j] = (float) Math2.interpolate(elevationProfile[firstIndex],
+                            elevationProfile[lastIndex],
+                            ((double)(j-firstIndex)/(lastIndex-firstIndex)));
                 }
             }
 
