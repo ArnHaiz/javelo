@@ -46,11 +46,6 @@ public final class RouteComputer {
         record WeightedNode(int nodeId, float distance)
                 implements Comparable<WeightedNode> {
             @Override
-            /**
-             * return the comparison between two WeightNode
-             * @param that : second instance of comparison
-             * @return the comparison between two WeightNode
-             */
             public int compareTo(WeightedNode that) {
                 return Float.compare(this.distance, that.distance);
             }
