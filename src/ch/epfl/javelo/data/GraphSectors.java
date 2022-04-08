@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * @author Arnaud Haizmann (329072)
  * @author Hervé Sérandour (328233)
- *
+ * <p>
  * record representing all the sectors in switzerland
  */
 public record GraphSectors(ByteBuffer buffer) {
@@ -46,23 +46,23 @@ public record GraphSectors(ByteBuffer buffer) {
     /**
      * number of sectors in a row or a column.
      */
-    public static final int SUBDIVISONS_PER_SIDE = 128;
+    public static final int SUBDIVISIONS_PER_SIDE = 128;
     /**
      * width of a sector.
      */
-    public static final double SECTOR_WIDTH = (SWISS_MAX_EAST - (double)SWISS_MIN_EAST) / SUBDIVISONS_PER_SIDE;
+    public static final double SECTOR_WIDTH = (SWISS_MAX_EAST - (double) SWISS_MIN_EAST) / SUBDIVISIONS_PER_SIDE;
     /**
      * height of a sector.
      */
-    public static final double SECTOR_HEIGHT = (SWISS_MAX_NORTH - (double) SWISS_MIN_NORTH) / SUBDIVISONS_PER_SIDE;
+    public static final double SECTOR_HEIGHT = (SWISS_MAX_NORTH - (double) SWISS_MIN_NORTH) / SUBDIVISIONS_PER_SIDE;
 
     /**
-     * finds all the sectors in a square of side double <code>distance</code> around the point <code>center</code>
+     * finds all the sectors in a square of side double <code>distance</code> around the point <code>center</code>.
      *
-     * @param center
-     * @param distance
+     * @param center   the center point of search
+     * @param distance the distance from the center in which to search for sectors
      * @return an ArrayList of sectors that are in the square centered at
-     * <code>point</code> and of side equals to double <code>distance</code>
+     * <code>point</code> and of side equals to double <code>distance</code>.
      */
     public List<Sector> sectorsInArea(PointCh center, double distance) {
         Preconditions.checkArgument(distance > 0);
@@ -70,25 +70,33 @@ public record GraphSectors(ByteBuffer buffer) {
         ArrayList<Sector> sectorList = new ArrayList<>();
 
         PointCh min = new PointCh(
-                Math.max(Math.floor((center.e() - distance - SWISS_MIN_EAST) / SECTOR_WIDTH) * SECTOR_WIDTH + SWISS_MIN_EAST, SWISS_MIN_EAST),
-                Math.max(Math.floor((center.n() - distance - SWISS_MIN_NORTH) / SECTOR_HEIGHT) * SECTOR_HEIGHT + SWISS_MIN_NORTH, SWISS_MIN_NORTH));
+                Math.max(Math.floor((center.e() - distance - SWISS_MIN_EAST) / SECTOR_WIDTH) * SECTOR_WIDTH + SWISS_MIN_EAST
+                        , SWISS_MIN_EAST)
+                , Math.max(Math.floor((center.n() - distance - SWISS_MIN_NORTH) / SECTOR_HEIGHT) * SECTOR_HEIGHT + SWISS_MIN_NORTH
+                        , SWISS_MIN_NORTH));
 
         PointCh max = new PointCh(
-                Math.min(Math.ceil((center.e() + distance - SWISS_MIN_EAST) / SECTOR_WIDTH) * SECTOR_WIDTH + SWISS_MIN_EAST, SWISS_MAX_EAST),
-                Math.min(Math.ceil((center.n() + distance - SWISS_MIN_NORTH) / SECTOR_HEIGHT) * SECTOR_HEIGHT + SWISS_MIN_NORTH, SWISS_MAX_NORTH));
+                Math.min(Math.ceil((center.e() + distance - SWISS_MIN_EAST) / SECTOR_WIDTH)
+                                * SECTOR_WIDTH + SWISS_MIN_EAST
+                        , SWISS_MAX_EAST),
+                Math.min(Math.ceil((center.n() + distance - SWISS_MIN_NORTH) / SECTOR_HEIGHT)
+                                * SECTOR_HEIGHT + SWISS_MIN_NORTH
+                        , SWISS_MAX_NORTH));
 
         int firstSectorId = (int) ((min.e() - SWISS_MIN_EAST) / SECTOR_WIDTH +
-                SUBDIVISONS_PER_SIDE * (min.n() - SWISS_MIN_NORTH) / SECTOR_HEIGHT);
+                SUBDIVISIONS_PER_SIDE * (min.n() - SWISS_MIN_NORTH) / SECTOR_HEIGHT);
         int nbrNorthSectors = (int) Math.round((max.n() - min.n()) / SECTOR_HEIGHT);
         int nbrEastSectors = (int) Math.round((max.e() - min.e()) / SECTOR_WIDTH);
 
         for (int i = 0; i < nbrNorthSectors; i++) {
             for (int j = firstSectorId; j < firstSectorId + nbrEastSectors; j++) {
+
                 int firstNodeId = Bits.extractUnsigned(
-                        buffer.getInt((j + i * SUBDIVISONS_PER_SIDE) * OFFSET_SECTOR_INTS), 0, 31);
+                        buffer.getInt((j + i * SUBDIVISIONS_PER_SIDE) * OFFSET_SECTOR_INTS), 0, 31);
                 int endNodeId = firstNodeId +
                         Short.toUnsignedInt(buffer.getShort(
-                                (j + i * SUBDIVISONS_PER_SIDE) * OFFSET_SECTOR_INTS + Integer.BYTES));
+                                (j + i * SUBDIVISIONS_PER_SIDE) * OFFSET_SECTOR_INTS + Integer.BYTES));
+
                 sectorList.add(new Sector(firstNodeId, endNodeId));
             }
         }

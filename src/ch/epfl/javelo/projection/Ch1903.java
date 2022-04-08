@@ -7,7 +7,7 @@ package ch.epfl.javelo.projection;
  */
 public final class Ch1903 {
     /**
-     * Constructor of the non-instantiable Ch1903 class.
+     * private constructor of the non-instantiable Ch1903 class.
      */
     private Ch1903() {
     }
@@ -15,7 +15,7 @@ public final class Ch1903 {
     /**
      * Converts the given coordinate from WGS 84 to the corresponding east value
      * in swiss coordinates.
-     * 
+     *
      * @param lon the WGS 84 longitude (in radians)
      * @param lat the WGS 84 latitude (in radians)
      * @return the east value in swiss coordinates from WGS 84.
@@ -35,7 +35,7 @@ public final class Ch1903 {
     /**
      * Converts the given coordinate from WGS 84 to the corresponding north value
      * in swiss coordinates.
-     * 
+     *
      * @param lon the WGS 84 longitude (in radians)
      * @param lat the WGS 84 latitude (in radians)
      * @return the north value in swiss coordinates from WGS 84.
@@ -56,7 +56,7 @@ public final class Ch1903 {
     /**
      * Converts the given coordinate from swiss coordinates to the corresponding
      * WGS 84 longitude.
-     * 
+     *
      * @param e the east value
      * @param n the north value
      * @return the longitude value (in radians) in WGS 84 from swiss coordinates.
@@ -75,7 +75,7 @@ public final class Ch1903 {
     /**
      * Converts the given coordinate from swiss coordinates to the corresponding
      * WGS 84 latitude.
-     * 
+     *
      * @param e the east value
      * @param n the north value
      * @return the latitude value (in radians) in WGS 84 from swiss coordinates.

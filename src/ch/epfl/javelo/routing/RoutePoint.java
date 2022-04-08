@@ -10,9 +10,6 @@ import static java.lang.Double.POSITIVE_INFINITY;
  * @author Hervé Sérandour (328233)
  *
  * record class representing a point on an itinerary closest to a reference point.
- *
- * @author Arnaud (329072)
- * @author Hervé (328233)
  */
 public record RoutePoint(PointCh point, double position, double distanceToReference) {
     /**
@@ -23,7 +20,7 @@ public record RoutePoint(PointCh point, double position, double distanceToRefere
     /**
      * returns a new RoutePoint with just the position shifted by <code>positionDifference</code>.
      *
-     * @param positionDifference
+     * @param positionDifference the distance we want to add to the position of the point
      * @return a new identical point except the position is shifted by <code>positionDifference</code>.
      */
     public RoutePoint withPositionShiftedBy(double positionDifference) {
@@ -34,7 +31,7 @@ public record RoutePoint(PointCh point, double position, double distanceToRefere
      * returns the point with the smallest <code>distanceToReference</code> from the two
      * without creating a new <code>RoutePoint</code>
      *
-     * @param that
+     * @param that the RoutePoint with which to compare
      * @return the point with the smallest <code>distanceToReference</code> from the two.
      */
     public RoutePoint min(RoutePoint that) {
@@ -45,9 +42,9 @@ public record RoutePoint(PointCh point, double position, double distanceToRefere
      * returns the point with the smallest <code>distanceToReference</code> from the two
      * by creating a new <code>RoutePoint</code> with the parameters if necessary.
      *
-     * @param thatPoint
-     * @param thatPosition
-     * @param thatDistanceToReference
+     * @param thatPoint               the pointCh of the RoutePoint we're comparing
+     * @param thatPosition            the position of the RoutePoint we're comparing
+     * @param thatDistanceToReference the distance to reference of the RoutePoint we're comparing
      * @return a <code>RoutePoint</code> with smallest <code>distanceToReference</code> from the two.
      */
     public RoutePoint min(PointCh thatPoint, double thatPosition, double thatDistanceToReference) {

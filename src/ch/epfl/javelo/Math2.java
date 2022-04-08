@@ -51,7 +51,7 @@ public final class Math2 {
      */
     public static int clamp(int min, int v, int max) {
         Preconditions.checkArgument(min <= max);
-        return (v <= min) ? min : ((v >= max) ? max : v);
+        return (v <= min) ? min : (Math.min(v, max));
     }
 
     /**
@@ -66,7 +66,7 @@ public final class Math2 {
      */
     public static double clamp(double min, double v, double max) {
         Preconditions.checkArgument(min <= max);
-        return (v <= min) ? min : ((v >= max) ? max : v);
+        return (v <= min) ? min : (Math.min(v, max));
     }
 
     /**
