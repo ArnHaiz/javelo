@@ -53,22 +53,24 @@ public final class RouteComputer {
         inExploration.add(new WeightedNode(startNodeId, 0));
         while(!inExploration.isEmpty()) {
             int node = inExploration.remove().nodeId;
-            if(node==endNodeId) {
-                break;
-            }
-            for (int i = 0; i < graph.nodeOutDegree(node); i++) {
-                int newNode = graph.edgeTargetNodeId(graph.nodeOutEdgeId(node, i));
-                double d = distance[node]
-                        + graph.edgeLength(graph.nodeOutEdgeId(node, i))
-                        * costFunction.costFactor(node,graph.nodeOutEdgeId(node, i));
-                if (d < distance[newNode]) {
-                    distance[newNode] = d;
-                    predecessor[newNode] = node;
-                    inExploration.add(new WeightedNode(newNode, (float)(distance[newNode]
-                            + graph.nodePoint(newNode).distanceTo(graph.nodePoint(endNodeId)))));
+            if(!(distance[node]==Float.NEGATIVE_INFINITY)) {
+                if (node == endNodeId) {
+                    break;
                 }
+                for (int i = 0; i < graph.nodeOutDegree(node); i++) {
+                    int newNode = graph.edgeTargetNodeId(graph.nodeOutEdgeId(node, i));
+                    double d = distance[node]
+                            + graph.edgeLength(graph.nodeOutEdgeId(node, i))
+                            * costFunction.costFactor(node, graph.nodeOutEdgeId(node, i));
+                    if (d < distance[newNode]) {
+                        distance[newNode] = d;
+                        predecessor[newNode] = node;
+                        inExploration.add(new WeightedNode(newNode, (float) (distance[newNode]
+                                + graph.nodePoint(newNode).distanceTo(graph.nodePoint(endNodeId)))));
+                    }
+                }
+                distance[node] = Float.NEGATIVE_INFINITY;
             }
-            //distance[node] = Float.NEGATIVE_INFINITY;
         }
         if(predecessor[endNodeId]==0) {
             return null;
