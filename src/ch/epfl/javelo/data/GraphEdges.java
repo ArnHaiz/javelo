@@ -157,16 +157,18 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
                 int push2 = Bits.extractSigned(elevationToExtract, 8, 4);
                 float leftMiddlePart = Q28_4.asFloat(push2);
                 sample[i + 1] = leftMiddlePart + sample[i];
-            }
-            if (i + 2 < sample.length) {
-                int push3 = Bits.extractSigned(elevationToExtract, 4, 4);
-                float rightMiddlePart = Q28_4.asFloat(push3);
-                sample[i + 2] = rightMiddlePart + sample[i + 1];
-            }
-            if (i + 3 < sample.length) {
-                int push4 = Bits.extractSigned(elevationToExtract, 0, 4);
-                float rightPart = Q28_4.asFloat(push4);
-                sample[i + 3] = rightPart + sample[i + 2];
+
+                if (i + 2 < sample.length) {
+                    int push3 = Bits.extractSigned(elevationToExtract, 4, 4);
+                    float rightMiddlePart = Q28_4.asFloat(push3);
+                    sample[i + 2] = rightMiddlePart + sample[i + 1];
+
+                    if (i + 3 < sample.length) {
+                        int push4 = Bits.extractSigned(elevationToExtract, 0, 4);
+                        float rightPart = Q28_4.asFloat(push4);
+                        sample[i + 3] = rightPart + sample[i + 2];
+                    }
+                }
             }
         }
         return invertedSample(sample, edgeId);
