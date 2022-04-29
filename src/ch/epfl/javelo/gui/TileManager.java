@@ -1,6 +1,6 @@
 package ch.epfl.javelo.gui;
 
-import javafx.scene.image.Image;;
+import javafx.scene.image.Image;
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;

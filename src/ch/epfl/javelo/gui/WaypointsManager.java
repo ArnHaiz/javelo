@@ -1,0 +1,65 @@
+package ch.epfl.javelo.gui;
+
+import ch.epfl.javelo.data.Graph;
+import ch.epfl.javelo.projection.PointCh;
+import ch.epfl.javelo.projection.PointWebMercator;
+import javafx.beans.property.ObjectProperty;
+import javafx.scene.Group;
+import javafx.scene.Node;
+import javafx.scene.layout.Pane;
+import javafx.scene.shape.SVGPath;
+
+import java.util.List;
+import java.util.function.Consumer;
+
+
+public class WaypointsManager {
+    private final Graph graph;
+    private final ObjectProperty<MapViewParameters> property;
+    private final List<Waypoint> waypointList;
+    private final Consumer<String> errorManager;
+    private final Pane pane;
+    public WaypointsManager(Graph graph, ObjectProperty<MapViewParameters> property, List<Waypoint> waypointList, Consumer<String> errorManager) {
+        this.graph = graph;
+        this.property = property;
+        this.waypointList = waypointList;
+        this.errorManager = errorManager;
+        this.pane = new Pane();
+        for(int i = 0; i<waypointList.size(); i++) {
+            Group group = SVGCreator(waypointList.get(i));
+            if(i==0) {
+                group.getStyleClass().add("first");
+            } else if(i==waypointList.size()-1){
+                group.getStyleClass().add("last");
+            } else {
+                group.getStyleClass().add("middle");
+            }
+            pane.getChildren().add(group);
+        }
+    }
+    public Pane pane() {
+        return pane;
+    }
+    public void addWaypoint(double coordinateX, double coordinateY) {
+        PointWebMercator point = property.get().pointAt(coordinateX, coordinateY);
+        PointCh pointCh = point.toPointCh();
+        if(!(graph.nodeClosestTo(pointCh, 500)==-1)) {
+            waypointList.add(new Waypoint(pointCh, graph.nodeClosestTo(pointCh, 500)));
+        }
+    }
+    private Group SVGCreator(Waypoint waypoint) {
+        SVGPath inside = new SVGPath();
+        SVGPath outside = new SVGPath();
+        inside.setContent("M0-23A1 1 0 000-29 1 1 0 000-23");
+        outside.setContent("M-8-20C-5-14-2-7 0 0 2-7 5-14 8-20 20-40-20-40-8-20");
+        inside.getStyleClass().add("pin_inside");
+        outside.getStyleClass().add("pin_outside");
+        Group group = new Group(inside, outside);
+        group.getStyleClass().add("pin");
+        PointCh pointCh = waypoint.pointCh();
+        PointWebMercator pointWebMercator = PointWebMercator.ofPointCh(pointCh);
+        group.setLayoutX(property.get().viewX(pointWebMercator));
+        group.setLayoutX(property.get().viewY(pointWebMercator));
+        return group;
+    }
+}
