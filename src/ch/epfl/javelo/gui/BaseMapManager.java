@@ -45,20 +45,20 @@ public final class BaseMapManager {
             int newZoom = Math2.clamp(8,
                     (int) Math.round(mapViewParameters.get().zoomLevel() + scrollEvent.getDeltaY()),
                     19);
+            System.out.println(newZoom);
             double newX = mapViewParameters.get().topLeftX()
-                    + scrollEvent.getDeltaY();
+                    - Math.pow(2, scrollEvent.getDeltaY());
             double newY = mapViewParameters.get().topLeftY()
-                    + scrollEvent.getDeltaY();
+                    - Math.pow(2, scrollEvent.getDeltaY());
 
             mapViewParameters.set(new MapViewParameters(newZoom, newX, newY));
-            redrawOnNextPulse();
         }));
 
         canvas.setOnMouseClicked(clickEvent -> {
             if (clickEvent.isStillSincePress()) {
 
-                waypointsManager.addWaypoint(clickEvent.getX(), clickEvent.getY());
-                redrawOnNextPulse();
+                waypointsManager.addWaypoint(mapViewParameters.get().topLeftX() + clickEvent.getX(),
+                        mapViewParameters.get().topLeftY() + clickEvent.getY());
             }
 
             System.out.println("4");
@@ -75,10 +75,12 @@ public final class BaseMapManager {
                 double newY = mapViewParameters.get().topLeftY() - (newPos.get().getY() - oldPos.get().getY());
 
                 mapViewParameters.set(mapViewParameters.get().withMinXY(newX, newY));
-                redrawOnNextPulse();
                 oldPos.set(newPos.get());
             }
         });
+
+        mapViewParameters.addListener(event -> redrawOnNextPulse());
+        redrawOnNextPulse();
     }
 
     public Pane pane() {
@@ -87,6 +89,7 @@ public final class BaseMapManager {
 
     private void drawMap() {
         GraphicsContext graphicsContext = canvas.getGraphicsContext2D();
+        graphicsContext.clearRect(0,0, canvas.getWidth(), canvas.getHeight());
         for (int i = 0; i < Math.ceil(canvas.getHeight() / PIXELS_PER_TILE_SIDE); i++) {
             for (int j = 0; j < Math.ceil(canvas.getWidth() / PIXELS_PER_TILE_SIDE); j++) {
                 try {
@@ -99,7 +102,7 @@ public final class BaseMapManager {
                             j * PIXELS_PER_TILE_SIDE,
                             i * PIXELS_PER_TILE_SIDE); //FIXME
                 } catch (IOException e) {
-                    System.out.println("1");
+                    break;
                 }
             }
         }

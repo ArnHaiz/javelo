@@ -42,8 +42,9 @@ public class WaypointsManager {
         return pane;
     }
     public void addWaypoint(double coordinateX, double coordinateY) {
+
         PointWebMercator point = property.get().pointAt(coordinateX, coordinateY);
-        PointCh pointCh = point.toPointCh();
+        PointCh pointCh = property.get().pointAt(coordinateX, coordinateY).toPointCh();
         if(graph.nodeClosestTo(pointCh, 500)!=-1) {
             waypointList.add(new Waypoint(pointCh, graph.nodeClosestTo(pointCh, 500)));
         }else {
