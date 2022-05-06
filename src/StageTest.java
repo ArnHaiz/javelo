@@ -57,7 +57,6 @@ public class StageTest extends Application {
         mainPane.getStylesheets().add("map.css");
         primaryStage.setScene(new Scene(mainPane, 600, 300));
         primaryStage.show();
-        mainPane.setOnMouseClicked(e -> System.out.println("6"));
     }
 
     private static final class ErrorConsumer

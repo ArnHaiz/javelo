@@ -45,11 +45,10 @@ public final class BaseMapManager {
             int newZoom = Math2.clamp(8,
                     (int) Math.round(mapViewParameters.get().zoomLevel() + scrollEvent.getDeltaY()),
                     19);
-            System.out.println(newZoom);
-            double newX = mapViewParameters.get().topLeftX()
-                    - Math.pow(2, scrollEvent.getDeltaY());
-            double newY = mapViewParameters.get().topLeftY()
-                    - Math.pow(2, scrollEvent.getDeltaY());
+
+            Point2D pointUnderMouse = mapViewParameters.get().topLeft().add(scrollEvent.getX(), scrollEvent.getY());
+            double newX = - scrollEvent.getX() + Math.scalb(pointUnderMouse.getX(), newZoom - mapViewParameters.get().zoomLevel());
+            double newY = - scrollEvent.getY() + Math.scalb(pointUnderMouse.getY(), newZoom - mapViewParameters.get().zoomLevel()) ;
 
             mapViewParameters.set(new MapViewParameters(newZoom, newX, newY));
         }));
@@ -59,9 +58,10 @@ public final class BaseMapManager {
 
                 waypointsManager.addWaypoint(mapViewParameters.get().topLeftX() + clickEvent.getX(),
                         mapViewParameters.get().topLeftY() + clickEvent.getY());
+                System.out.println("4");
             }
 
-            System.out.println("4");
+
         });
         ObjectProperty<Point2D> oldPos = new SimpleObjectProperty<>();
         canvas.setOnMousePressed((mousePress -> oldPos.set(new Point2D(mousePress.getX(), mousePress.getY()))));
@@ -80,6 +80,7 @@ public final class BaseMapManager {
         });
 
         mapViewParameters.addListener(event -> redrawOnNextPulse());
+
         redrawOnNextPulse();
     }
 
@@ -89,7 +90,7 @@ public final class BaseMapManager {
 
     private void drawMap() {
         GraphicsContext graphicsContext = canvas.getGraphicsContext2D();
-        graphicsContext.clearRect(0,0, canvas.getWidth(), canvas.getHeight());
+        graphicsContext.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         for (int i = 0; i < Math.ceil(canvas.getHeight() / PIXELS_PER_TILE_SIDE); i++) {
             for (int j = 0; j < Math.ceil(canvas.getWidth() / PIXELS_PER_TILE_SIDE); j++) {
                 try {
