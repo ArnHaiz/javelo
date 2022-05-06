@@ -23,7 +23,7 @@ public final class Stage8Test extends Application {
         Path cacheBasePath = Path.of(".");
         String tileServerHost = "https://tile.openstreetmap.org";
         TileManager tileManager =
-                new TileManager(cacheBasePath, new URL(tileServerHost));
+                new TileManager(cacheBasePath, "https://tile.openstreetmap.org");
 
         MapViewParameters mapViewParameters =
                 new MapViewParameters(12, 543200, 370650);

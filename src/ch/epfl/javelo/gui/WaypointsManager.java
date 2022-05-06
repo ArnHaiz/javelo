@@ -5,7 +5,6 @@ import ch.epfl.javelo.projection.PointCh;
 import ch.epfl.javelo.projection.PointWebMercator;
 import javafx.beans.property.ObjectProperty;
 import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.SVGPath;
 
@@ -19,23 +18,26 @@ public class WaypointsManager {
     private final List<Waypoint> waypointList;
     private final Consumer<String> errorManager;
     private final Pane pane;
-    public WaypointsManager(Graph graph, ObjectProperty<MapViewParameters> property, List<Waypoint> waypointList, Consumer<String> errorManager) {
+    public WaypointsManager(Graph graph, ObjectProperty<MapViewParameters> property,
+                            List<Waypoint> waypointList, Consumer<String> errorManager) {
         this.graph = graph;
         this.property = property;
         this.waypointList = waypointList;
         this.errorManager = errorManager;
         this.pane = new Pane();
-        for(int i = 0; i<waypointList.size(); i++) {
-            Group group = SVGCreator(waypointList.get(i));
-            if(i==0) {
-                group.getStyleClass().add("first");
-            } else if(i==waypointList.size()-1){
-                group.getStyleClass().add("last");
-            } else {
-                group.getStyleClass().add("middle");
+        property.addListener((p, oldMapViewParams, newMapViewParams) -> {
+            for(int i = 0; i<pane.getChildren().size(); i++) {
+                Waypoint waypoint = waypointList.get(i);
+                PointCh pointCh = waypoint.pointCh();
+                PointWebMercator pointWebMercator = PointWebMercator.ofPointCh(pointCh);
+                Group group = (Group) pane.getChildren().get(i);
+                group.setLayoutX(newMapViewParams.viewX(pointWebMercator));
+                group.setLayoutY(newMapViewParams.viewY(pointWebMercator));
             }
-            pane.getChildren().add(group);
-        }
+        });
+        //gestion error pane consumer new metode
+        this.errorManager.accept("Aucune route à proximité !");
+        SVGUsher();
     }
     public Pane pane() {
         return pane;
@@ -43,8 +45,10 @@ public class WaypointsManager {
     public void addWaypoint(double coordinateX, double coordinateY) {
         PointWebMercator point = property.get().pointAt(coordinateX, coordinateY);
         PointCh pointCh = point.toPointCh();
-        if(!(graph.nodeClosestTo(pointCh, 500)==-1)) {
+        if(graph.nodeClosestTo(pointCh, 500)!=-1) {
             waypointList.add(new Waypoint(pointCh, graph.nodeClosestTo(pointCh, 500)));
+        }else {
+
         }
     }
     private Group SVGCreator(Waypoint waypoint) {
@@ -60,6 +64,48 @@ public class WaypointsManager {
         PointWebMercator pointWebMercator = PointWebMercator.ofPointCh(pointCh);
         group.setLayoutX(property.get().viewX(pointWebMercator));
         group.setLayoutX(property.get().viewY(pointWebMercator));
+        group.setOnMouseClicked((e)-> {
+            if(e.isBackButtonDown()) {
+                if(!(waypointList.isEmpty())) {
+                group.getStyleClass().clear();
+                pane.getChildren().clear();
+                }
+            }
+        });
+        group.setOnMouseDragged((e)-> {
+            PointWebMercator point = property.get().pointAt(e.getScreenX(), e.getScreenY());
+            group.setLayoutX(property.get().viewX(point));
+            group.setLayoutX(property.get().viewY(point));
+        });
+        group.setOnMouseReleased((e)-> {
+            PointWebMercator point = property.get().pointAt(e.getScreenX(), e.getScreenY());
+            PointCh newPointCh = point.toPointCh();
+            if(graph.nodeClosestTo(newPointCh, 500)!=-1) {
+                group.setLayoutX(property.get().viewX(point));
+                group.setLayoutX(property.get().viewY(point));
+                int index = waypointList.indexOf(waypoint);
+                waypointList.remove(waypoint);
+                waypointList.add(index, new Waypoint(newPointCh, graph.nodeClosestTo(newPointCh, 500)));
+            }else {
+                group.setLayoutX(property.get().viewX(pointWebMercator));
+                group.setLayoutX(property.get().viewY(pointWebMercator));
+
+            }
+        });
         return group;
+    }
+    private void SVGUsher() {
+        for(int i = 0; i<waypointList.size(); i++) {
+            Group group = SVGCreator(waypointList.get(i));
+            if(i==0) {
+                group.getStyleClass().add("first");
+            } else if(i==waypointList.size()-1){
+                group.getStyleClass().add("last");
+            } else {
+                group.getStyleClass().add("middle");
+            }
+            pane.getChildren().add(group);
+        }
+        pane.setPickOnBounds(false);
     }
 }

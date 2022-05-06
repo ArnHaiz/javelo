@@ -66,7 +66,6 @@ public final class Graph {
         for (int i = 0; i < channelAttributeSetsBuffer.capacity(); i++) {
             attributeSets.add(new AttributeSet(channelAttributeSetsBuffer.get(i)));
         }
-
         GraphNodes nodes = new GraphNodes(channelNodesBuffer);
         GraphSectors sectors = new GraphSectors(channelSectorsBuffer);
         GraphEdges edges = new GraphEdges(channelEdgesBuffer, channelProfile_idsBuffer, channelElevationsBuffer);
@@ -85,7 +84,7 @@ public final class Graph {
         this.nodes = nodes;
         this.sectors = sectors;
         this.edges = edges;
-        this.attributeSets = new ArrayList<>(attributeSets);
+        this.attributeSets = List.copyOf(attributeSets);
     }
 
     /**
@@ -136,9 +135,8 @@ public final class Graph {
      * @return the closet node to a given position or -1 if there isn't any node in the max distance given
      */
     public int nodeClosestTo(PointCh point, double searchDistance) {
-        int nodeId = 0;
+        int nodeId = -1;
         double distance = searchDistance * searchDistance;
-        int counter = 0;
         List<GraphSectors.Sector> targetSector = sectors.sectorsInArea(point, searchDistance);
         for (int i = 0; i < targetSector.size(); i++) {
             GraphSectors.Sector workSector = targetSector.get(i);
@@ -146,13 +144,9 @@ public final class Graph {
                 PointCh target = nodePoint(j);
                 if (target.squaredDistanceTo(point) <= distance) {
                     nodeId = j;
-                    counter++;
                     distance = target.squaredDistanceTo(point);
                 }
             }
-        }
-        if (counter == 0) {
-            nodeId = -1;
         }
         return nodeId;
     }
@@ -220,7 +214,7 @@ public final class Graph {
         if (!edges.hasProfile(edgeId)) {
             return Functions.constant(Double.NaN);
         } else {
-            return Functions.sampled(sample, edges.length(edgeId));
+            return Functions.sampled(sample, edgeLength(edgeId));
         }
     }
 }

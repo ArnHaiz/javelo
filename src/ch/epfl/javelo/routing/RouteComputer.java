@@ -20,6 +20,7 @@ import static java.util.Collections.reverse;
 public final class RouteComputer {
     private final Graph graph;
     private final CostFunction costFunction;
+    private final float NEGATIVE_INFINITY = Float.NEGATIVE_INFINITY;
 
     /**
      * construct an itinerary planner
@@ -55,17 +56,16 @@ public final class RouteComputer {
                 return Float.compare(this.distance, that.distance);
             }
         }
-        Preconditions.checkArgument(!(startNodeId == endNodeId));
+        Preconditions.checkArgument(startNodeId != endNodeId);
         double[] distance = new double[graph.nodeCount()];
         Arrays.fill(distance, Double.POSITIVE_INFINITY);
         int[] predecessor = new int[graph.nodeCount()];
-        Arrays.fill(predecessor, 0);
         distance[startNodeId] = 0;
         PriorityQueue<WeightedNode> inExploration = new PriorityQueue<>();
         inExploration.add(new WeightedNode(startNodeId, 0));
         while (!inExploration.isEmpty()) {
             int node = inExploration.remove().nodeId;
-            if (!(distance[node] == Float.NEGATIVE_INFINITY)) {
+            if (distance[node] != NEGATIVE_INFINITY) {
                 if (node == endNodeId) {
                     break;
                 }
@@ -81,7 +81,7 @@ public final class RouteComputer {
                                 + graph.nodePoint(newNode).distanceTo(graph.nodePoint(endNodeId)))));
                     }
                 }
-                distance[node] = Float.NEGATIVE_INFINITY;
+                distance[node] = NEGATIVE_INFINITY;
             }
         }
         if (predecessor[endNodeId] == 0) {
@@ -93,10 +93,7 @@ public final class RouteComputer {
                 int fromNode = predecessor[node];
                 int toNode = node;
                 int index = obtainEdgeIndex(fromNode, toNode);
-                double length = graph.edgeLength(graph.nodeOutEdgeId(fromNode, index));
-                DoubleUnaryOperator profile = graph.edgeProfile(graph.nodeOutEdgeId(fromNode, index));
-                edgePath.add(new Edge(fromNode, toNode,
-                        graph.nodePoint(fromNode), graph.nodePoint(toNode), length, profile));
+                edgePath.add(Edge.of(graph, graph.nodeOutEdgeId(fromNode,index), fromNode, toNode));
                 node = predecessor[node];
             }
             reverse(edgePath);

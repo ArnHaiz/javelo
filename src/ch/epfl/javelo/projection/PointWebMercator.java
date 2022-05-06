@@ -10,6 +10,7 @@ import ch.epfl.javelo.Preconditions;
  * record representing a point in the system WebMercator.
  */
 public record PointWebMercator(double x, double y) {
+    private static final int BASE_ZOOM_LEVEL = 8;
     /**
      * construct a PointWebMercator
      *
@@ -28,7 +29,7 @@ public record PointWebMercator(double x, double y) {
      * @return the point that have the coordinates given at a certain zoom level
      */
     public static PointWebMercator of(int zoomLevel, double x, double y) {
-        return new PointWebMercator(Math.scalb(x, -(zoomLevel + 8)), Math.scalb(y, -(zoomLevel + 8)));
+        return new PointWebMercator(Math.scalb(x, -(zoomLevel + BASE_ZOOM_LEVEL)), Math.scalb(y, -(zoomLevel + BASE_ZOOM_LEVEL)));
     }
 
     /**
@@ -50,7 +51,7 @@ public record PointWebMercator(double x, double y) {
      * @return the coordinate at a given zoom level
      */
     public double xAtZoomLevel(int zoomLevel) {
-        return Math.scalb(x, 8 + zoomLevel);
+        return Math.scalb(x, BASE_ZOOM_LEVEL + zoomLevel);
     }
 
     /**
@@ -60,7 +61,7 @@ public record PointWebMercator(double x, double y) {
      * @return the coordinate at a given zoom level
      */
     public double yAtZoomLevel(int zoomLevel) {
-        return Math.scalb(y, 8 + zoomLevel);
+        return Math.scalb(y, BASE_ZOOM_LEVEL + zoomLevel);
     }
 
     /**
@@ -87,12 +88,10 @@ public record PointWebMercator(double x, double y) {
      * @return the coordinate of the point in the swiss coordinates if the point is in the swiss bounds otherwise null
      */
     public PointCh toPointCh() {
-        double e = Ch1903.e(lon(), lat());
-        double n = Ch1903.n(lon(), lat());
-        if (SwissBounds.containsEN(e, n)) {
-            return new PointCh(e, n);
-        } else {
-            return null;
-        }
+        double lon = lon();
+        double lat = lat();
+        double e = Ch1903.e(lon, lat);
+        double n = Ch1903.n(lon, lat);
+        return SwissBounds.containsEN(e, n) ?  new PointCh(e, n) : null;
     }
 }

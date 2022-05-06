@@ -10,12 +10,12 @@ import java.util.LinkedHashMap;
 
 public final class TileManager {
     private final Path path;
-    private final URL url;
-    public TileManager(Path path, URL url) {
+    private final String url;
+    public TileManager(Path path, String url) {
         this.path = path;
         this.url = url;
     }
-    private LinkedHashMap<TileId, Image> cacheMemory = new LinkedHashMap<>(100);
+    private final LinkedHashMap<TileId, Image> cacheMemory = new LinkedHashMap<>(100);
     public Image imageForTileAt(TileId tileId) throws IOException {
         return getCache(tileId);
     }
@@ -33,9 +33,9 @@ public final class TileManager {
     }
     private Image getFromDisk(TileId tileId) throws IOException {
         Path finalPath = path;
-        finalPath.resolve(String.valueOf(tileId.tileZoomLevel()));
-        finalPath.resolve(String.valueOf(tileId.tileXIndex()));
-        finalPath.resolve(tileId.tileYIndex+".png");
+        finalPath = finalPath.resolve(String.valueOf(tileId.tileZoomLevel()));
+        finalPath = finalPath.resolve(String.valueOf(tileId.tileXIndex()));
+        finalPath = finalPath.resolve(tileId.tileYIndex+".png");
         String newFile = finalPath.toString();
         if(!Files.exists(finalPath)){
             setToDisk(getFromServer(tileId), tileId);
@@ -54,9 +54,9 @@ public final class TileManager {
     }
     private void setToDisk(InputStream stream, TileId tileId) throws IOException {
         Path finalPath = path;
-        finalPath.resolve(String.valueOf(tileId.tileZoomLevel()));
-        finalPath.resolve(String.valueOf(tileId.tileXIndex()));
-        finalPath.resolve(tileId.tileYIndex+".png");
+        finalPath = finalPath.resolve(String.valueOf(tileId.tileZoomLevel()));
+        finalPath = finalPath.resolve(String.valueOf(tileId.tileXIndex()));
+        finalPath = finalPath.resolve(tileId.tileYIndex+".png");
         String newFile = finalPath.toString();
         Files.createDirectories(finalPath.getParent());
         try(FileOutputStream output = new FileOutputStream(newFile)) {

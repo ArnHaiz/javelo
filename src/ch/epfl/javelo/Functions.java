@@ -8,6 +8,7 @@ import java.util.function.DoubleUnaryOperator;
  * class representing a single route composed of a list of edges.
  */
 public final class Functions {
+    private Functions() {}
     /**
      * return a constant function of value y
      *
@@ -26,6 +27,7 @@ public final class Functions {
      * @param xMax    : position of the last index of the array
      * @return a function obtained by linear interpolation on the samples, regularly spaced out between 0 and xMax
      * @throws IllegalArgumentException if there are less than 2 samples
+     * @throws IllegalArgumentException if xMax is less or equals to 0
      */
     public static DoubleUnaryOperator sampled(float[] samples, double xMax) {
         return new Sample(samples, xMax);
@@ -52,13 +54,13 @@ public final class Functions {
 
         public Sample(float[] samples, double xMax) {
             Preconditions.checkArgument(samples.length >= 2);
+            Preconditions.checkArgument(xMax > 0);
             useSamples = samples;
             useXMax = xMax;
         }
 
         @Override
         public double applyAsDouble(double operand) {
-
             if (operand <= 0) {
                 return useSamples[0];
             } else if (operand >= useXMax) {
@@ -68,7 +70,6 @@ public final class Functions {
                 int sampleIdx = (int) Math.floor(operand / intervalSize);
                 double x = ((operand - sampleIdx * intervalSize) / intervalSize);
                 return Math2.interpolate(useSamples[sampleIdx], useSamples[sampleIdx + 1], x);
-
             }
         }
     }
