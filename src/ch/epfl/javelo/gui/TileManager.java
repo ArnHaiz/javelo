@@ -11,15 +11,15 @@ import java.util.LinkedHashMap;
 
 public final class TileManager {
     private final Path path;
-    private final URL url;
+    private final String url;
     private static final String MAP_URL = "https://tile.openstreetmap.org";
 
-    public TileManager(Path path, URL url) {
+    public TileManager(Path path, String url) {
         this.path = path;
         this.url = url;
     }
 
-    private LinkedHashMap<TileId, Image> cacheMemory = new LinkedHashMap<>(100);
+    private final LinkedHashMap<TileId, Image> cacheMemory = new LinkedHashMap<>(100);
 
     public Image imageForTileAt(TileId tileId) throws IOException {
         return getCache(tileId);

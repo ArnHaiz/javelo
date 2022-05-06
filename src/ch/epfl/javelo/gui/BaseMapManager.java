@@ -46,32 +46,37 @@ public final class BaseMapManager {
                     (int) Math.round(mapViewParameters.get().zoomLevel() + scrollEvent.getDeltaY()),
                     19);
             double newX = mapViewParameters.get().topLeftX()
-                    + scrollEvent.getDeltaY() * PIXELS_PER_TILE_SIDE;
+                    + scrollEvent.getDeltaY();
             double newY = mapViewParameters.get().topLeftY()
-                    + scrollEvent.getDeltaY() * PIXELS_PER_TILE_SIDE;
+                    + scrollEvent.getDeltaY();
 
             mapViewParameters.set(new MapViewParameters(newZoom, newX, newY));
             redrawOnNextPulse();
         }));
 
         canvas.setOnMouseClicked(clickEvent -> {
-            if (!clickEvent.isDragDetect()) {
+            if (clickEvent.isStillSincePress()) {
+
                 waypointsManager.addWaypoint(clickEvent.getX(), clickEvent.getY());
                 redrawOnNextPulse();
             }
 
             System.out.println("4");
         });
-
-        ObjectProperty<Point2D> pos = new SimpleObjectProperty<>();
-        canvas.setOnMousePressed(e -> pos.set(new Point2D(e.getX(), e.getY())));
+        ObjectProperty<Point2D> oldPos = new SimpleObjectProperty<>();
+        canvas.setOnMousePressed((mousePress -> oldPos.set(new Point2D(mousePress.getX(), mousePress.getY()))));
         canvas.setOnMouseDragged(dragEvent -> {
+            ObjectProperty<Point2D> newPos = new SimpleObjectProperty<>();
+            newPos.set(new Point2D(dragEvent.getX(), dragEvent.getY()));
+
             if (!dragEvent.isStillSincePress()) {
-                double newX = mapViewParameters.get().topLeftX() - dragEvent.getX() - pos.get().getX();
-                double newY = mapViewParameters.get().topLeftY() - dragEvent.getY() - pos.get().getY();
+
+                double newX = mapViewParameters.get().topLeftX() - (newPos.get().getX() - oldPos.get().getX());
+                double newY = mapViewParameters.get().topLeftY() - (newPos.get().getY() - oldPos.get().getY());
 
                 mapViewParameters.set(mapViewParameters.get().withMinXY(newX, newY));
                 redrawOnNextPulse();
+                oldPos.set(newPos.get());
             }
         });
     }
@@ -88,11 +93,11 @@ public final class BaseMapManager {
                     Image tileImage = tileManager.imageForTileAt
                             (new TileManager.TileId(
                                     mapViewParameters.get().zoomLevel(),
-                                            (int) mapViewParameters.get().topLeftX() / PIXELS_PER_TILE_SIDE + j,
-                                            (int) mapViewParameters.get().topLeftY() / PIXELS_PER_TILE_SIDE + i));
+                                    (int) mapViewParameters.get().topLeftX() / PIXELS_PER_TILE_SIDE + j,
+                                    (int) mapViewParameters.get().topLeftY() / PIXELS_PER_TILE_SIDE + i));
                     graphicsContext.drawImage(tileImage,
                             j * PIXELS_PER_TILE_SIDE,
-                            i * PIXELS_PER_TILE_SIDE ); //FIXME
+                            i * PIXELS_PER_TILE_SIDE); //FIXME
                 } catch (IOException e) {
                     System.out.println("1");
                 }

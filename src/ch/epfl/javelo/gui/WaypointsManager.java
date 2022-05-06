@@ -39,6 +39,7 @@ public class WaypointsManager {
         this.errorManager.accept("Aucune route à proximité !");
         SVGUsher();
     }
+
     public Pane pane() {
         return pane;
     }
