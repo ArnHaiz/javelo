@@ -35,8 +35,6 @@ public class WaypointsManager {
                 group.setLayoutY(newMapViewParams.viewY(pointWebMercator));
             }
         });
-        //gestion error pane consumer new metode
-        this.errorManager.accept("Aucune route à proximité !");
         SVGUsher();
     }
 
@@ -49,7 +47,8 @@ public class WaypointsManager {
         if(graph.nodeClosestTo(pointCh, 500)!=-1) {
             waypointList.add(new Waypoint(pointCh, graph.nodeClosestTo(pointCh, 500)));
         }else {
-
+            errorManager.accept("Aucune route à proximité !");
+            return;
         }
     }
     private Group SVGCreator(Waypoint waypoint) {
@@ -81,16 +80,17 @@ public class WaypointsManager {
         group.setOnMouseReleased((e)-> {
             PointWebMercator point = property.get().pointAt(e.getScreenX(), e.getScreenY());
             PointCh newPointCh = point.toPointCh();
-            if(graph.nodeClosestTo(newPointCh, 500)!=-1) {
+            int nodeClose = graph.nodeClosestTo(newPointCh, 500);
+            if(nodeClose!=-1) {
                 group.setLayoutX(property.get().viewX(point));
                 group.setLayoutX(property.get().viewY(point));
                 int index = waypointList.indexOf(waypoint);
                 waypointList.remove(waypoint);
-                waypointList.add(index, new Waypoint(newPointCh, graph.nodeClosestTo(newPointCh, 500)));
+                waypointList.add(index, new Waypoint(newPointCh, nodeClose));
             }else {
                 group.setLayoutX(property.get().viewX(pointWebMercator));
                 group.setLayoutX(property.get().viewY(pointWebMercator));
-
+                errorManager.accept("Aucune route à proximité !");
             }
         });
         return group;
