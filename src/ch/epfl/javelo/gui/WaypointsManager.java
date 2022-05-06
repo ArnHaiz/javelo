@@ -5,7 +5,6 @@ import ch.epfl.javelo.projection.PointCh;
 import ch.epfl.javelo.projection.PointWebMercator;
 import javafx.beans.property.ObjectProperty;
 import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.SVGPath;
 
@@ -36,6 +35,7 @@ public class WaypointsManager {
             }
             pane.getChildren().add(group);
         }
+        pane.setMouseTransparent(true); //FIXME
     }
     public Pane pane() {
         return pane;
