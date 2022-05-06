@@ -4,12 +4,15 @@ import ch.epfl.javelo.Math2;
 import ch.epfl.javelo.Preconditions;
 import ch.epfl.javelo.projection.PointCh;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Arnaud Haizmann (329072)
  * @author Hervé Sérandour (328233)
- *
+ * <p>
  * class representing an itinerary composed of multiple itineraries.
  */
 public final class MultiRoute implements Route {
@@ -48,14 +51,14 @@ public final class MultiRoute implements Route {
             positionList[i] = positionList[i - 1] + segments.get(i).length();
         }
 
-        points = List.copyOf(tempPoints);
+        points = Collections.unmodifiableList(tempPoints);
         length = tempLength;
-        edges = List.copyOf(tempEdges);
+        edges = Collections.unmodifiableList(tempEdges);
     }
 
     private int indexOf(double position) {
         int index = Arrays.binarySearch(positionList, position);
-        if (index >= 0) {
+        if (index >= 0 && index != segments.size()) {
             return index;
         } else {
             index = Math.abs(index) - 2;
@@ -71,7 +74,6 @@ public final class MultiRoute implements Route {
         for (Route route : segments) {
             if (position <= 0) break;
             index += route.indexOfSegmentAt(position) + 1;
-            //index += Integer.max(route.indexOfSegmentAt(position), position < route.length() ? 0 : 1) ;
             position -= route.length();
         }
 
@@ -132,6 +134,7 @@ public final class MultiRoute implements Route {
                 .map(r -> r.pointClosestTo(point))
                 .min(Comparator.comparingDouble(RoutePoint::distanceToReference))
                 .orElse(RoutePoint.NONE);
-    */
+         */
     }
 }
+

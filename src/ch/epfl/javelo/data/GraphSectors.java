@@ -3,6 +3,7 @@ package ch.epfl.javelo.data;
 import ch.epfl.javelo.Bits;
 import ch.epfl.javelo.Preconditions;
 import ch.epfl.javelo.projection.PointCh;
+import ch.epfl.javelo.projection.SwissBounds;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -50,11 +51,11 @@ public record GraphSectors(ByteBuffer buffer) {
     /**
      * width of a sector.
      */
-    public static final double SECTOR_WIDTH = (SWISS_MAX_EAST - (double) SWISS_MIN_EAST) / SUBDIVISIONS_PER_SIDE;
+    public static final double SECTOR_WIDTH = SwissBounds.WIDTH / SUBDIVISIONS_PER_SIDE;
     /**
      * height of a sector.
      */
-    public static final double SECTOR_HEIGHT = (SWISS_MAX_NORTH - (double) SWISS_MIN_NORTH) / SUBDIVISIONS_PER_SIDE;
+    public static final double SECTOR_HEIGHT = SwissBounds.HEIGHT / SUBDIVISIONS_PER_SIDE;
 
     /**
      * finds all the sectors in a square of side double <code>distance</code> around the point <code>center</code>.

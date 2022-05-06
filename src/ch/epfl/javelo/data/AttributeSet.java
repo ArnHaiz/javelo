@@ -1,8 +1,8 @@
 package ch.epfl.javelo.data;
 
-import java.util.StringJoiner;
-
 import ch.epfl.javelo.Preconditions;
+
+import java.util.StringJoiner;
 
 /**
  * @author Arnaud Haizmann (329072)
