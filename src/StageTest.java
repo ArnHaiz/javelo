@@ -18,6 +18,7 @@ import javafx.stage.Stage;
 
 import java.net.URL;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.function.Consumer;
 
 import static javafx.application.Application.launch;
@@ -37,8 +38,9 @@ public class StageTest extends Application {
                 new MapViewParameters(12, 543200, 370650);
         ObjectProperty<MapViewParameters> mapViewParametersP =
                 new SimpleObjectProperty<>(mapViewParameters);
+
         ObservableList<Waypoint> waypoints =
-                FXCollections.observableArrayList(
+               FXCollections.observableArrayList(
                         new Waypoint(new PointCh(2532697, 1152350), 159049),
                         new Waypoint(new PointCh(2538659, 1154350), 117669));
         Consumer<String> errorConsumer = new ErrorConsumer();

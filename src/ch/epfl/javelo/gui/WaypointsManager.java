@@ -42,14 +42,14 @@ public class WaypointsManager {
         return pane;
     }
     public void addWaypoint(double coordinateX, double coordinateY) {
-
-        PointWebMercator point = property.get().pointAt(coordinateX, coordinateY);
         PointCh pointCh = property.get().pointAt(coordinateX, coordinateY).toPointCh();
-        if(graph.nodeClosestTo(pointCh, 500)!=-1) {
-            waypointList.add(new Waypoint(pointCh, graph.nodeClosestTo(pointCh, 500)));
+        int nodeClose = graph.nodeClosestTo(pointCh, 500);
+        if(nodeClose!=-1) {
+            waypointList.add(new Waypoint(pointCh, nodeClose));
+            pane.getChildren().clear();
+            SVGUsher();
         }else {
             errorManager.accept("Aucune route à proximité !");
-            return;
         }
     }
     private Group SVGCreator(Waypoint waypoint) {
@@ -61,25 +61,24 @@ public class WaypointsManager {
         outside.getStyleClass().add("pin_outside");
         Group group = new Group(inside, outside);
         group.getStyleClass().add("pin");
-        PointCh pointCh = waypoint.pointCh();
-        PointWebMercator pointWebMercator = PointWebMercator.ofPointCh(pointCh);
+        PointWebMercator pointWebMercator = PointWebMercator.ofPointCh(waypoint.pointCh());
         group.setLayoutX(property.get().viewX(pointWebMercator));
-        group.setLayoutX(property.get().viewY(pointWebMercator));
+        group.setLayoutY(property.get().viewY(pointWebMercator));
         group.setOnMouseClicked((e)-> {
             if(e.isBackButtonDown()) {
                 if(!(waypointList.isEmpty())) {
                 group.getStyleClass().clear();
-                pane.getChildren().clear();
+                pane.getChildren().remove(waypointList.indexOf(waypoint));
                 }
             }
         });
         group.setOnMouseDragged((e)-> {
-            PointWebMercator point = property.get().pointAt(e.getScreenX(), e.getScreenY());
+            PointWebMercator point = property.get().pointAt(e.getSceneX(), e.getSceneY());
             group.setLayoutX(property.get().viewX(point));
             group.setLayoutX(property.get().viewY(point));
         });
         group.setOnMouseReleased((e)-> {
-            PointWebMercator point = property.get().pointAt(e.getScreenX(), e.getScreenY());
+            PointWebMercator point = property.get().pointAt(e.getSceneX(), e.getSceneY());
             PointCh newPointCh = point.toPointCh();
             int nodeClose = graph.nodeClosestTo(newPointCh, 500);
             if(nodeClose!=-1) {
@@ -88,6 +87,8 @@ public class WaypointsManager {
                 int index = waypointList.indexOf(waypoint);
                 waypointList.remove(waypoint);
                 waypointList.add(index, new Waypoint(newPointCh, nodeClose));
+                pane.getChildren().clear();
+                SVGUsher();
             }else {
                 group.setLayoutX(property.get().viewX(pointWebMercator));
                 group.setLayoutX(property.get().viewY(pointWebMercator));
