@@ -20,11 +20,11 @@ public record MapViewParameters(int zoomLevel, double topLeftX, double topLeftY)
     }
 
     public double viewX(PointWebMercator p) {
-        return Math.scalb(p.x(), zoomLevel + 8);
+        return p.xAtZoomLevel(zoomLevel)-topLeftX;
     }
 
     public double viewY(PointWebMercator p) {
-        return Math.scalb(p.y(), zoomLevel + 8);
+        return p.yAtZoomLevel(zoomLevel)-topLeftY;
     }
 }
 
