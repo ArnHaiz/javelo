@@ -39,6 +39,7 @@ public class WaypointsManager {
     }
 
     public Pane pane() {
+        pane.setPickOnBounds(false);
         return pane;
     }
     public void addWaypoint(double coordinateX, double coordinateY) {
