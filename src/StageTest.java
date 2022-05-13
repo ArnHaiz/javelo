@@ -7,24 +7,16 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 
-import java.net.URL;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.function.Consumer;
 
-import static javafx.application.Application.launch;
-
 public class StageTest extends Application {
-    public static void main(String[] args) { launch(args); }
+    public static void main(String[] args) {
+        launch(args);
+    }
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -40,7 +32,7 @@ public class StageTest extends Application {
                 new SimpleObjectProperty<>(mapViewParameters);
 
         ObservableList<Waypoint> waypoints =
-               FXCollections.observableArrayList(
+                FXCollections.observableArrayList(
                         new Waypoint(new PointCh(2532697, 1152350), 159049),
                         new Waypoint(new PointCh(2538659, 1154350), 117669));
         Consumer<String> errorConsumer = new ErrorConsumer();
@@ -64,6 +56,8 @@ public class StageTest extends Application {
     private static final class ErrorConsumer
             implements Consumer<String> {
         @Override
-        public void accept(String s) { System.out.println(s); }
+        public void accept(String s) {
+            System.out.println(s);
+        }
     }
 }
