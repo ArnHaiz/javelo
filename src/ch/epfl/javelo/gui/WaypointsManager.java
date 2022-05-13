@@ -70,16 +70,17 @@ public class WaypointsManager {
                 if(!(waypointList.isEmpty())) {
                 group.getStyleClass().clear();
                 pane.getChildren().remove(waypointList.indexOf(waypoint));
+                waypointList.remove(waypoint);
                 }
             }
         });
         group.setOnMouseDragged((e)-> {
-            PointWebMercator point = property.get().pointAt(e.getSceneX(), e.getSceneY());
+            PointWebMercator point = property.get().pointAt(e.getScreenX(), e.getScreenY());
             group.setLayoutX(property.get().viewX(point));
             group.setLayoutX(property.get().viewY(point));
         });
         group.setOnMouseReleased((e)-> {
-            PointWebMercator point = property.get().pointAt(e.getSceneX(), e.getSceneY());
+            PointWebMercator point = property.get().pointAt(e.getScreenX(), e.getScreenY());
             PointCh newPointCh = point.toPointCh();
             int nodeClose = graph.nodeClosestTo(newPointCh, 500);
             if(nodeClose!=-1) {
