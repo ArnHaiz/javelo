@@ -1,6 +1,7 @@
 package ch.epfl.javelo.gui;
 
 import ch.epfl.javelo.routing.*;
+import javafx.beans.Observable;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -21,6 +22,8 @@ public final class RouteBean {
     private final LinkedHashMap<Pair<Integer, Integer>, Route> samplesRoute = new LinkedHashMap<>(10);
     public RouteBean(RouteComputer routeComputer) {
         this.routeComputer = routeComputer;
+        waypoints.addListener((Observable o)->setRoute());
+        waypoints.addListener((Observable o)->setElevationProfile());
     }
     public ReadOnlyObjectProperty<Route> getRoute() {
         return route;
