@@ -12,6 +12,7 @@ import javafx.util.Pair;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Objects;
 
 public final class RouteBean {
     public ObservableList<Waypoint> waypoints;
@@ -22,6 +23,7 @@ public final class RouteBean {
     private final LinkedHashMap<Pair<Integer, Integer>, Route> samplesRoute = new LinkedHashMap<>(10);
     public RouteBean(RouteComputer routeComputer) {
         this.routeComputer = routeComputer;
+        assert false;
         waypoints.addListener((Observable o)->setRoute());
         waypoints.addListener((Observable o)->setElevationProfile());
     }
@@ -42,7 +44,7 @@ public final class RouteBean {
                 if(samplesRoute.containsKey(nodes)) {
                     way = samplesRoute.get(nodes);
                 }else {
-                    way = routeComputer.bestRouteBetween(waypoints.get(i).nodeClosestToId(), waypoints.get(i + 1).nodeClosestToId());
+                    way = routeComputer.bestRouteBetween(nodes.getKey(), nodes.getValue());
                     samplesRoute.put(nodes, way);
                 }
                 if(way == null) {
@@ -62,14 +64,10 @@ public final class RouteBean {
             elevationProfile.set(ElevationProfileComputer.elevationProfile(route.get(), 5));
         }
     }
-    public DoubleProperty getHighlightedPosition() {
-        return highlightedPosition;
+    public double getHighlightedPosition() {
+        return highlightedPosition.getValue();
     }
-    public void setHighlightedPosition(DoubleProperty position) {
-        if(position == null) {
-            highlightedPosition = new SimpleDoubleProperty(Double.NaN);
-        }else {
-            highlightedPosition = position;
-        }
+    public void setHighlightedPosition(double position) {
+        highlightedPosition = Objects.requireNonNullElseGet(new SimpleDoubleProperty(position), () -> new SimpleDoubleProperty(Double.NaN));
     }
 }

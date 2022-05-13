@@ -60,7 +60,7 @@ public class WaypointsManager {
         outside.setContent("M-8-20C-5-14-2-7 0 0 2-7 5-14 8-20 20-40-20-40-8-20");
         inside.getStyleClass().add("pin_inside");
         outside.getStyleClass().add("pin_outside");
-        Group group = new Group(inside, outside);
+        Group group = new Group(outside, inside);
         group.getStyleClass().add("pin");
         PointWebMercator pointWebMercator = PointWebMercator.ofPointCh(waypoint.pointCh());
         group.setLayoutX(property.get().viewX(pointWebMercator));
@@ -69,7 +69,7 @@ public class WaypointsManager {
             if(e.isBackButtonDown()) {
                 if(!(waypointList.isEmpty())) {
                 group.getStyleClass().clear();
-                pane.getChildren().remove(waypointList.indexOf(waypoint));
+                pane.getChildren().clear();
                 waypointList.remove(waypoint);
                 }
             }

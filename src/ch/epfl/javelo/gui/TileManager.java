@@ -1,5 +1,6 @@
 package ch.epfl.javelo.gui;
 
+import ch.epfl.javelo.Preconditions;
 import javafx.scene.image.Image;
 
 import java.io.*;
@@ -12,7 +13,6 @@ import java.util.LinkedHashMap;
 public final class TileManager {
     private final Path path;
     private final String url;
-    private static final String MAP_URL = "https://tile.openstreetmap.org";
 
     public TileManager(Path path, String url) {
         this.path = path;
@@ -58,7 +58,7 @@ public final class TileManager {
     }
 
     private void setToDisk(TileId tileId) throws IOException {
-        URL u = new URL(computeTilePath(MAP_URL, tileId));
+        URL u = new URL(computeTilePath(url, tileId));
         URLConnection c = u.openConnection();
         c.setRequestProperty("User-Agent", "JaVelo");
 
@@ -75,6 +75,9 @@ public final class TileManager {
     }
 
     record TileId(int tileZoomLevel, int tileXIndex, int tileYIndex) {
+        public TileId {
+            Preconditions.checkArgument(isValid(tileZoomLevel, tileXIndex, tileYIndex));
+        }
         public static boolean isValid(int tileZoomLevel, int tileXIndex, int tileYIndex) {
             return (Math.pow(2, tileZoomLevel) > tileXIndex)
                     && (Math.pow(2, tileZoomLevel) > tileYIndex)
