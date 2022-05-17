@@ -18,11 +18,24 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.function.DoubleUnaryOperator;
 
+/**
+ * @author Arnaud Haizmann (329072)
+ * @author Hervé Sérandour (328233)
+ *
+ * public non-instantiable class generating gpx files containing the informations of a <code>Route</code>.
+ */
 public class GpxGenerator {
     private GpxGenerator() {
     }
 
-    public static Document createGpx(Route route, DoubleUnaryOperator routeProfil) {
+    /**
+     * returns a <code>Document</code> containing the <code>route</code>'s information.
+     *
+     * @param route the route of which to extract information from
+     * @param routeProfile the profile of the route
+     * @return a gpx document containing the route's information
+     */
+    public static Document createGpx(Route route, DoubleUnaryOperator routeProfile) {
         Document doc = newDocument();
 
         Element root = doc
@@ -57,12 +70,20 @@ public class GpxGenerator {
 
             rtept.setAttribute("lat", String.valueOf(p.lat()));
             rtept.setAttribute("lon", String.valueOf(p.lon()));
-            ele.setTextContent(String.valueOf(routeProfil.applyAsDouble(route.pointClosestTo(p).position())));
+            ele.setTextContent(String.valueOf(routeProfile.applyAsDouble(route.pointClosestTo(p).position())));
         }
 
         return doc;
     }
 
+    /**
+     * writes a gpx document with name <code>fileName</code> containing all the information of the route <code>route</code>.
+     *
+     * @param fileName the name to give to the file
+     * @param route the route to extract information from
+     * @param routeProfile the profile of the route
+     * @throws IOException if there is an error in the file generation
+     */
     public static void writeGpx(String fileName, Route route, DoubleUnaryOperator routeProfile) throws IOException {
         Document doc = createGpx(route, routeProfile);
 

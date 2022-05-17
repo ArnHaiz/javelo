@@ -14,6 +14,12 @@ import javafx.scene.text.Text;
 
 import java.io.IOException;
 
+/**
+ * @author Arnaud Haizmann (329072)
+ * @author Hervé Sérandour (328233)
+ *
+ * class handling most of the display of the map and it's associated interactive features.
+ */
 public final class BaseMapManager {
     TileManager tileManager;
     ObjectProperty<MapViewParameters> mapViewParameters;
@@ -24,6 +30,13 @@ public final class BaseMapManager {
     private final int PIXELS_PER_TILE_SIDE = 256;
     private boolean redrawNeeded = false;
 
+    /**
+     * public constructor of the <code>BaseMapManager</code> class.
+     *
+     * @param tileManager handler of the tiles of the map to be drawn
+     * @param mapViewParameters the basic parameters deciding what part of the map to draw
+     * @param waypointsManager the handler of the waypoints deciding the route
+     */
     public BaseMapManager(TileManager tileManager, ObjectProperty<MapViewParameters> mapViewParameters, WaypointsManager waypointsManager) {
         this.tileManager = tileManager;
         this.mapViewParameters = mapViewParameters;
@@ -91,6 +104,11 @@ public final class BaseMapManager {
         redrawOnNextPulse();
     }
 
+    /**
+     * returns the pane on which the map is drawn.
+     *
+     * @return the pane with the drawn map
+     */
     public Pane pane() {
         return pane;
     }

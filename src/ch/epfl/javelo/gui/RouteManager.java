@@ -10,6 +10,12 @@ import javafx.scene.shape.Polyline;
 import java.util.List;
 import java.util.function.Consumer;
 
+/**
+ * @author Arnaud Haizmann (329072)
+ * @author Hervé Sérandour (328233)
+ *
+ * class managing the display of a route and the highlighted position
+ */
 public final class RouteManager {
     RouteBean routeBean;
     ReadOnlyObjectProperty<MapViewParameters> mapViewParameters;
@@ -19,13 +25,20 @@ public final class RouteManager {
     Polyline polyline;
     Circle circle;
 
+    /**
+     * public constructor of the <code>RouteManager</code> class
+     *
+     * @param routeBean bean representing the route to display
+     * @param mapViewParameters the parameters of the current display
+     * @param errorConsumer the consumer for specific problems
+     */
     public RouteManager(RouteBean routeBean, ReadOnlyObjectProperty<MapViewParameters> mapViewParameters, Consumer<String> errorConsumer) {
         this.routeBean = routeBean;
         this.mapViewParameters = mapViewParameters;
         this.errorConsumer = errorConsumer;
 
         polyline = new Polyline();
-        List<PointCh> points = routeBean.getRoute().getValue().points();
+        List<PointCh> points = routeBean.routeProperty().getValue().points();
         for (int i = 0; i < points.size(); i += 2) {
             polyline.getPoints().add(i, points.get(i).e());
             polyline.getPoints().add(i + 1, points.get(i).n());
@@ -49,23 +62,19 @@ public final class RouteManager {
             updateHighlightedPosition();
         }));
 
-        routeBean.getRoute().addListener((observable, oldValue, newValue) -> {
-            updateHighlightedPosition();
-        });
+        routeBean.routeProperty().addListener((observable, oldValue, newValue) -> updateHighlightedPosition());
 
-        /*routeBean.getHighlightedPosition().addListener((observable, oldValue, newValue) -> {
-            updateHighlightedPosition();
-        });*/
+        routeBean.highlightedPositionProperty().addListener((observable, oldValue, newValue) -> updateHighlightedPosition());
 
         pane.setOnMouseClicked((clickEvent -> {
             if (clickEvent.isStillSincePress() &&
-                    routeBean.getRoute() != null &&
+                    routeBean.routeProperty() != null &&
                     compare2dCh(
                             circle.localToParent(clickEvent.getX(), clickEvent.getY()),
-                            routeBean.getRoute().getValue().pointAt(routeBean.getHighlightedPosition()))) {
+                            routeBean.routeProperty().getValue().pointAt(routeBean.getHighlightedPosition()))) {
                 Waypoint newWaypoint = new Waypoint(
-                        routeBean.getRoute().getValue().pointAt(routeBean.getHighlightedPosition()),
-                        routeBean.getRoute().getValue().nodeClosestTo(routeBean.getHighlightedPosition()));
+                        routeBean.routeProperty().getValue().pointAt(routeBean.getHighlightedPosition()),
+                        routeBean.routeProperty().getValue().nodeClosestTo(routeBean.getHighlightedPosition()));
                 if (!routeBean.waypoints.contains(newWaypoint)) {
                     routeBean.waypoints.add(newWaypoint);
                 } else {
@@ -75,6 +84,11 @@ public final class RouteManager {
         }));
     }
 
+    /**
+     * returns the pane on which the route and highlighted position are drawn
+     *
+     * @return the pane with the route and the highlighted position
+     */
     public Pane pane() {
         return pane;
     }
@@ -82,14 +96,14 @@ public final class RouteManager {
 
     private void updateHighlightedPosition() {
         double highlightedPosition = routeBean.getHighlightedPosition();
-        PointCh highlightedPoint = routeBean.getRoute().getValue().pointAt(highlightedPosition);
+        PointCh highlightedPoint = routeBean.routeProperty().getValue().pointAt(highlightedPosition);
 
-        if (routeBean.getRoute().get() != null && highlightedPosition < routeBean.getRoute().get().length() && highlightedPosition >= 0) {
+        if (routeBean.routeProperty().get() != null && highlightedPosition < routeBean.routeProperty().get().length() && highlightedPosition >= 0) {
             circle.setVisible(true);
             circle.setCenterX(highlightedPoint.e());
             circle.setCenterY(highlightedPoint.n());
 
-        } else if (routeBean.getRoute().get() == null) {
+        } else if (routeBean.routeProperty().get() == null) {
             circle.setVisible(false);
         }
     }

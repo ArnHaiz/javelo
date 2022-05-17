@@ -2,10 +2,8 @@ package ch.epfl.javelo.gui;
 
 import ch.epfl.javelo.routing.*;
 import javafx.beans.Observable;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.*;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.util.Pair;
 
@@ -15,27 +13,45 @@ import java.util.List;
 import java.util.Objects;
 
 public final class RouteBean {
-    public ObservableList<Waypoint> waypoints;
-    private ObjectProperty<Route> route;
-    private DoubleProperty highlightedPosition;
-    private ObjectProperty<ElevationProfile> elevationProfile;
+    public final ObservableList<Waypoint> waypoints;
+
+    private final ObjectProperty<Route> route;
+    private final DoubleProperty highlightedPosition;
+    private final ObjectProperty<ElevationProfile> elevationProfile;
     private final RouteComputer routeComputer;
     private final LinkedHashMap<Pair<Integer, Integer>, Route> samplesRoute = new LinkedHashMap<>(10);
+
     public RouteBean(RouteComputer routeComputer) {
+        route = new SimpleObjectProperty<>();
+        highlightedPosition = new SimpleDoubleProperty();
+        elevationProfile = new SimpleObjectProperty<>();
         this.routeComputer = routeComputer;
-        assert false;
-        waypoints.addListener((Observable o)->setRoute());
-        waypoints.addListener((Observable o)->setElevationProfile());
+
+        waypoints = FXCollections.observableArrayList();
+        waypoints.addListener((Observable o)-> updateRoute());
+        waypoints.addListener((Observable o)-> updateElevationProfile());
     }
-    public ReadOnlyObjectProperty<Route> getRoute() {
+
+    public ReadOnlyObjectProperty<Route> routeProperty() {
         return route;
     }
-    public ReadOnlyObjectProperty<ElevationProfile> getElevationProfile() {
+    public ReadOnlyObjectProperty<ElevationProfile> elevationProfileProperty() {
         return elevationProfile;
     }
-    private void setRoute() {
+
+    public double getHighlightedPosition() {
+        return highlightedPosition.get();
+    }
+    public void setHighlightedPosition(double position) {
+        highlightedPosition.set(position);
+    }
+    public DoubleProperty highlightedPositionProperty() {
+        return highlightedPosition;
+    }
+
+    private void updateRoute() {
         if(waypoints.size()<2) {
-            route = null;
+            route.set(null);
         }else {
             List<Route> segments = new ArrayList<>();
             for (int i = 0; i < waypoints.size()-1; i++) {
@@ -48,7 +64,7 @@ public final class RouteBean {
                     samplesRoute.put(nodes, way);
                 }
                 if(way == null) {
-                    route = null;
+                    route.set(null);
                     return;
                 }else {
                     segments.add(way);
@@ -57,17 +73,11 @@ public final class RouteBean {
             route.set(new MultiRoute(segments));
         }
     }
-    private void setElevationProfile() {
+    private void updateElevationProfile() {
         if(route == null) {
-            elevationProfile = null;
+            elevationProfile.set(null);
         }else {
             elevationProfile.set(ElevationProfileComputer.elevationProfile(route.get(), 5));
         }
-    }
-    public double getHighlightedPosition() {
-        return highlightedPosition.getValue();
-    }
-    public void setHighlightedPosition(double position) {
-        highlightedPosition = Objects.requireNonNullElseGet(new SimpleDoubleProperty(position), () -> new SimpleDoubleProperty(Double.NaN));
     }
 }
