@@ -39,9 +39,6 @@ public final class RouteBean {
         return elevationProfile;
     }
 
-    public double getHighlightedPosition() {
-        return highlightedPosition.get();
-    }
     public void setHighlightedPosition(double position) {
         highlightedPosition.set(position);
     }
