@@ -53,19 +53,19 @@ public final class RouteManager {
             updateHighlightedPosition();
         });
 
-        routeBean.getHighlightedPosition().addListener((observable, oldValue, newValue) -> {
+        /*routeBean.getHighlightedPosition().addListener((observable, oldValue, newValue) -> {
             updateHighlightedPosition();
-        });
+        });*/
 
         pane.setOnMouseClicked((clickEvent -> {
             if (clickEvent.isStillSincePress() &&
                     routeBean.getRoute() != null &&
                     compare2dCh(
                             circle.localToParent(clickEvent.getX(), clickEvent.getY()),
-                            routeBean.getRoute().getValue().pointAt(routeBean.getHighlightedPosition().getValue()))) {
+                            routeBean.getRoute().getValue().pointAt(routeBean.getHighlightedPosition()))) {
                 Waypoint newWaypoint = new Waypoint(
-                        routeBean.getRoute().getValue().pointAt(routeBean.getHighlightedPosition().getValue()),
-                        routeBean.getRoute().getValue().nodeClosestTo(routeBean.getHighlightedPosition().getValue()));
+                        routeBean.getRoute().getValue().pointAt(routeBean.getHighlightedPosition()),
+                        routeBean.getRoute().getValue().nodeClosestTo(routeBean.getHighlightedPosition()));
                 if (!routeBean.waypoints.contains(newWaypoint)) {
                     routeBean.waypoints.add(newWaypoint);
                 } else {
@@ -81,7 +81,7 @@ public final class RouteManager {
 
 
     private void updateHighlightedPosition() {
-        double highlightedPosition = routeBean.getHighlightedPosition().getValue();
+        double highlightedPosition = routeBean.getHighlightedPosition();
         PointCh highlightedPoint = routeBean.getRoute().getValue().pointAt(highlightedPosition);
 
         if (routeBean.getRoute().get() != null && highlightedPosition < routeBean.getRoute().get().length() && highlightedPosition >= 0) {
