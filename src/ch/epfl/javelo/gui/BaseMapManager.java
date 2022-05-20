@@ -120,18 +120,31 @@ public final class BaseMapManager {
     private void drawMap() {
         GraphicsContext graphicsContext = canvas.getGraphicsContext2D();
         graphicsContext.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-        for (int i = 0; i < Math.ceil(canvas.getHeight() / PIXELS_PER_TILE_SIDE); i++) {
-            for (int j = 0; j < Math.ceil(canvas.getWidth() / PIXELS_PER_TILE_SIDE); j++) {
+
+        int topLeftXIndex = (int) (mapViewParameters.get().topLeftX() - mapViewParameters.get().topLeftX() % PIXELS_PER_TILE_SIDE)
+                / PIXELS_PER_TILE_SIDE;
+        int topLeftYIndex = (int) (mapViewParameters.get().topLeftY() - mapViewParameters.get().topLeftY() % PIXELS_PER_TILE_SIDE)
+                / PIXELS_PER_TILE_SIDE;
+
+        int bottomRightXIndex = (int) (mapViewParameters.get().topLeftX() + canvas.getWidth() +
+                (PIXELS_PER_TILE_SIDE - (mapViewParameters.get().topLeftX() + canvas.getWidth()) % PIXELS_PER_TILE_SIDE))
+                / PIXELS_PER_TILE_SIDE;
+        int bottomRightYIndex = (int) (mapViewParameters.get().topLeftY() + canvas.getHeight() +
+                (PIXELS_PER_TILE_SIDE - (mapViewParameters.get().topLeftY() + canvas.getHeight()) % PIXELS_PER_TILE_SIDE))
+                / PIXELS_PER_TILE_SIDE;
+
+        for (int i = topLeftYIndex; i <= bottomRightYIndex; ++i) {
+            for (int j = topLeftXIndex; j <= bottomRightXIndex; ++j) {
                 try {
                     Image tileImage = tileManager.imageForTileAt
-                            (new TileManager.TileId(
-                                    mapViewParameters.get().zoomLevel(),
-                                    (int) mapViewParameters.get().topLeftX() / PIXELS_PER_TILE_SIDE + j,
-                                    (int) mapViewParameters.get().topLeftY() / PIXELS_PER_TILE_SIDE + i));
+                            (new TileManager.TileId(mapViewParameters.get().zoomLevel(), j, i));
+
                     graphicsContext.drawImage(tileImage,
-                            j * PIXELS_PER_TILE_SIDE,
-                            i * PIXELS_PER_TILE_SIDE); //FIXME
+                            j * PIXELS_PER_TILE_SIDE - mapViewParameters.get().topLeftX(),
+                            i * PIXELS_PER_TILE_SIDE - mapViewParameters.get().topLeftY()); //FIXME
+
                 } catch (IOException e) {
+                    System.out.println("draw failed");
                     break;
                 }
             }

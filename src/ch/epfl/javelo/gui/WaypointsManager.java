@@ -42,13 +42,6 @@ public class WaypointsManager {
 
         this.waypointList.addListener((ListChangeListener<? super Waypoint>) (change) -> recomputeSVGs());
 
-        pane.setOnMouseClicked(event -> {
-            System.out.println("pane mouse clicked");
-            addWaypoint(
-                    event.getX() + this.mapViewParametersProperty.get().topLeftX(),
-                    event.getY() + this.mapViewParametersProperty.get().topLeftY());
-        });
-
         recomputeSVGs();
     }
 
@@ -92,28 +85,31 @@ public class WaypointsManager {
             group.setLayoutY(mapViewParametersProperty.get().viewY(point) + mapViewParametersProperty.get().topLeftY());
         });
 
-        group.setOnMouseDragReleased(event -> {
-            Point2D point2D = group.localToParent(event.getX(), event.getY());
-            PointWebMercator point = mapViewParametersProperty.get().pointAt(point2D.getX(), point2D.getY());
-            PointCh newPointCh = point.toPointCh();
-            int nodeClose = graph.nodeClosestTo(newPointCh, 500);
-            if (nodeClose != -1) {
-
-                int index = waypointList.indexOf(waypoint);
+        group.setOnMouseClicked((event) -> {
+            if (event.isStillSincePress()) {
                 waypointList.remove(waypoint);
-                waypointList.add(index, new Waypoint(newPointCh, nodeClose));
 
-                pane.getChildren().clear();
-                recomputeSVGs();
             } else {
-                errorManager.accept("Aucune route à proximité !");
+                Point2D point2D = group.localToParent(event.getX(), event.getY()).add(
+                        mapViewParametersProperty.get().topLeftX(), mapViewParametersProperty.get().topLeftY());
+                PointWebMercator point = mapViewParametersProperty.get().pointAt(point2D.getX(), point2D.getY());
+                PointCh newPointCh = point.toPointCh();
+
+                int nodeClose = graph.nodeClosestTo(newPointCh, 500);
+                if (nodeClose != -1) {
+                    int index = waypointList.indexOf(waypoint);
+                    waypointList.set(index, new Waypoint(newPointCh, nodeClose));
+                    waypointList.add(index, new Waypoint(newPointCh, nodeClose));
+
+                    pane.getChildren().clear();
+                    recomputeSVGs();
+
+                } else {
+                    group.setLayoutX(mapViewParametersProperty.get().viewX(PointWebMercator.ofPointCh(waypoint.pointCh())));
+                    group.setLayoutY(mapViewParametersProperty.get().viewY(PointWebMercator.ofPointCh(waypoint.pointCh())));
+                    errorManager.accept("Aucune route à proximité !");
+                }
             }
-        });
-
-        group.setOnMouseClicked((mouseEvent) -> {
-            System.out.println("waypoint mouse pressed");
-
-            waypointList.remove(waypoint);
         });
         return group;
     }
