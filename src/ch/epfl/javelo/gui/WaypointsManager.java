@@ -4,6 +4,7 @@ import ch.epfl.javelo.data.Graph;
 import ch.epfl.javelo.projection.PointCh;
 import ch.epfl.javelo.projection.PointWebMercator;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
@@ -73,10 +74,14 @@ public class WaypointsManager {
         group.setLayoutX(mapViewParametersProperty.get().viewX(pointWebMercator));
         group.setLayoutY(mapViewParametersProperty.get().viewY(pointWebMercator));
 
+        ObjectProperty<Point2D> oldPos = new SimpleObjectProperty<>();
+        group.setOnMousePressed((event -> oldPos.set(new Point2D(event.getX(), event.getY()))));
+        
         group.setOnMouseDragged((event) -> {
-            Point2D pointUnderMouse = mapViewParametersProperty.get().topLeft().add(event.getX(), event.getY());
-            group.setLayoutX(group.getLayoutX() + (pointUnderMouse.getX() - group.getLayoutX()));
-            group.setLayoutY(group.getLayoutY() + (pointUnderMouse.getY() - group.getLayoutY()));
+            ObjectProperty<Point2D> newPos = new SimpleObjectProperty<>(new Point2D(event.getX(), event.getY()));
+
+            group.setLayoutX(group.getLayoutX() + (newPos.get().getX() - oldPos.get().getX()));
+            group.setLayoutY(group.getLayoutY() + (newPos.get().getY() - oldPos.get().getY()));
         });
 
         group.setOnMouseClicked((event) -> {
@@ -84,7 +89,7 @@ public class WaypointsManager {
                 waypointList.remove(waypoint);
 
             } else {
-                Point2D point2D = group.localToParent(event.getX(), event.getY()).add(
+                Point2D point2D = new Point2D(group.getLayoutX(), group.getLayoutY()).add(
                         mapViewParametersProperty.get().topLeftX(), mapViewParametersProperty.get().topLeftY());
                 PointWebMercator point = mapViewParametersProperty.get().pointAt(point2D.getX(), point2D.getY());
                 PointCh newPointCh = point.toPointCh();

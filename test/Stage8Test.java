@@ -27,12 +27,15 @@ public final class Stage8Test extends Application {
 
         MapViewParameters mapViewParameters =
                 new MapViewParameters(12, 543200, 370650);
+
         ObjectProperty<MapViewParameters> mapViewParametersP =
                 new SimpleObjectProperty<>(mapViewParameters);
+
         ObservableList<Waypoint> waypoints =
                 FXCollections.observableArrayList(
                         new Waypoint(new PointCh(2532697, 1152350), 159049),
                         new Waypoint(new PointCh(2538659, 1154350), 117669));
+
         Consumer<String> errorConsumer = new ErrorConsumer();
 
         WaypointsManager waypointsManager =
@@ -40,6 +43,7 @@ public final class Stage8Test extends Application {
                         mapViewParametersP,
                         waypoints,
                         errorConsumer);
+
         BaseMapManager baseMapManager =
                 new BaseMapManager(tileManager
                         , mapViewParametersP
@@ -48,9 +52,10 @@ public final class Stage8Test extends Application {
         StackPane mainPane =
                 new StackPane(baseMapManager.pane(),
                         waypointsManager.pane());
+
         mainPane.getStylesheets().add("file:resources/map.css");
         primaryStage.setMinWidth(600);
-        primaryStage.setMinHeight(300);
+        primaryStage.setMinHeight(500);
         primaryStage.setScene(new Scene(mainPane));
         primaryStage.show();
     }
