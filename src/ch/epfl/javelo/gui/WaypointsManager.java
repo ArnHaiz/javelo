@@ -31,14 +31,7 @@ public class WaypointsManager {
 
         pane.setPickOnBounds(false);
 
-        this.mapViewParametersProperty.addListener((p, oldMapViewParams, newMapViewParams) -> {
-            for (int i = 0; i < pane.getChildren().size(); ++i) {
-                PointWebMercator pointWebMercator = PointWebMercator.ofPointCh(waypointList.get(i).pointCh());
-                Group group = (Group) pane.getChildren().get(i);
-                group.setLayoutX(newMapViewParams.viewX(pointWebMercator));
-                group.setLayoutY(newMapViewParams.viewY(pointWebMercator));
-            }
-        });
+        this.mapViewParametersProperty.addListener((p, oldMapViewParams, newMapViewParams) -> recomputeSVGs());
 
         this.waypointList.addListener((ListChangeListener<? super Waypoint>) (change) -> {
             pane.getChildren().clear();
@@ -81,11 +74,9 @@ public class WaypointsManager {
         group.setLayoutY(mapViewParametersProperty.get().viewY(pointWebMercator));
 
         group.setOnMouseDragged((event) -> {
-            Point2D point2D = group.localToParent(event.getX(), event.getY());
-            PointWebMercator point = mapViewParametersProperty.get().pointAt(point2D.getX(), point2D.getY());
-
-            group.setLayoutX(mapViewParametersProperty.get().viewX(point) + mapViewParametersProperty.get().topLeftX());
-            group.setLayoutY(mapViewParametersProperty.get().viewY(point) + mapViewParametersProperty.get().topLeftY());
+            Point2D pointUnderMouse = mapViewParametersProperty.get().topLeft().add(event.getX(), event.getY());
+            group.setLayoutX(group.getLayoutX() + (pointUnderMouse.getX() - group.getLayoutX()));
+            group.setLayoutY(group.getLayoutY() + (pointUnderMouse.getY() - group.getLayoutY()));
         });
 
         group.setOnMouseClicked((event) -> {

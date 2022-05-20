@@ -77,9 +77,9 @@ public final class BaseMapManager {
         canvas.setOnMouseClicked(clickEvent -> {
             if (clickEvent.isStillSincePress()) {
 
-                waypointsManager.addWaypoint(mapViewParameters.get().topLeftX() + clickEvent.getX(),
+                waypointsManager.addWaypoint(
+                        mapViewParameters.get().topLeftX() + clickEvent.getX(),
                         mapViewParameters.get().topLeftY() + clickEvent.getY());
-                System.out.println("4");
             }
 
 
