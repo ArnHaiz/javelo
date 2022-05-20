@@ -1,6 +1,7 @@
 import ch.epfl.javelo.data.Graph;
 import ch.epfl.javelo.gui.*;
 import ch.epfl.javelo.projection.PointCh;
+import ch.epfl.javelo.routing.RouteComputer;
 import javafx.application.Application;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -46,6 +47,7 @@ public class StageTest extends Application {
                 new BaseMapManager(tileManager
                         , mapViewParametersP
                         , waypointsManager);
+        //RouteBean routeBean = new RouteBean(new RouteComputer(graph, ))
 
         StackPane mainPane = new StackPane(baseMapManager.pane(), waypointsManager.pane());
         mainPane.getStylesheets().add("map.css");

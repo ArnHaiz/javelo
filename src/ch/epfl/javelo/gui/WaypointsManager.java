@@ -40,7 +40,10 @@ public class WaypointsManager {
             }
         });
 
-        this.waypointList.addListener((ListChangeListener<? super Waypoint>) (change) -> recomputeSVGs());
+        this.waypointList.addListener((ListChangeListener<? super Waypoint>) (change) -> {
+            pane.getChildren().clear();
+            recomputeSVGs();
+        });
 
         recomputeSVGs();
     }
@@ -99,18 +102,17 @@ public class WaypointsManager {
                 if (nodeClose != -1) {
                     int index = waypointList.indexOf(waypoint);
                     waypointList.set(index, new Waypoint(newPointCh, nodeClose));
-                    waypointList.add(index, new Waypoint(newPointCh, nodeClose));
-
-                    pane.getChildren().clear();
-                    recomputeSVGs();
 
                 } else {
-                    group.setLayoutX(mapViewParametersProperty.get().viewX(PointWebMercator.ofPointCh(waypoint.pointCh())));
-                    group.setLayoutY(mapViewParametersProperty.get().viewY(PointWebMercator.ofPointCh(waypoint.pointCh())));
                     errorManager.accept("Aucune route à proximité !");
                 }
             }
+
+            pane.getChildren().clear();
+            recomputeSVGs();
+
         });
+
         return group;
     }
 
