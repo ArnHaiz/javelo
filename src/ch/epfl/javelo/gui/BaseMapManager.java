@@ -17,7 +17,7 @@ import java.io.IOException;
 /**
  * @author Arnaud Haizmann (329072)
  * @author Hervé Sérandour (328233)
- *
+ * <p>
  * class handling most of the display of the map and it's associated interactive features.
  */
 public final class BaseMapManager {
@@ -33,9 +33,9 @@ public final class BaseMapManager {
     /**
      * public constructor of the <code>BaseMapManager</code> class.
      *
-     * @param tileManager handler of the tiles of the map to be drawn
+     * @param tileManager       handler of the tiles of the map to be drawn
      * @param mapViewParameters the basic parameters deciding what part of the map to draw
-     * @param waypointsManager the handler of the waypoints deciding the route
+     * @param waypointsManager  the handler of the waypoints deciding the route
      */
     public BaseMapManager(TileManager tileManager, ObjectProperty<MapViewParameters> mapViewParameters, WaypointsManager waypointsManager) {
         this.tileManager = tileManager;
@@ -57,18 +57,19 @@ public final class BaseMapManager {
 
         SimpleLongProperty minScrollTime = new SimpleLongProperty();
         canvas.setOnScroll((scrollEvent -> {
+            if (scrollEvent.getDeltaY() == 0d) return;
             long currentTime = System.currentTimeMillis();
             if (currentTime < minScrollTime.get()) return;
-            minScrollTime.set(currentTime + 250);
-            double zoomDelta = Math.signum(scrollEvent.getDeltaY());
+            minScrollTime.set(currentTime + 200);
+            int zoomDelta = (int) Math.signum(scrollEvent.getDeltaY());
 
             int newZoom = Math2.clamp(8,
-                    (int) Math.round(mapViewParameters.get().zoomLevel() + zoomDelta),
+                    Math.round(mapViewParameters.get().zoomLevel() + zoomDelta),
                     19);
 
             Point2D pointUnderMouse = mapViewParameters.get().topLeft().add(scrollEvent.getX(), scrollEvent.getY());
-            double newX = - scrollEvent.getX() + Math.scalb(pointUnderMouse.getX(), newZoom - mapViewParameters.get().zoomLevel());
-            double newY = - scrollEvent.getY() + Math.scalb(pointUnderMouse.getY(), newZoom - mapViewParameters.get().zoomLevel()) ;
+            double newX = -scrollEvent.getX() + Math.scalb(pointUnderMouse.getX(), newZoom - mapViewParameters.get().zoomLevel());
+            double newY = -scrollEvent.getY() + Math.scalb(pointUnderMouse.getY(), newZoom - mapViewParameters.get().zoomLevel());
 
             mapViewParameters.set(new MapViewParameters(newZoom, newX, newY));
         }));
@@ -83,20 +84,23 @@ public final class BaseMapManager {
 
 
         });
-        ObjectProperty<Point2D> oldPos = new SimpleObjectProperty<>();
-        canvas.setOnMousePressed((mousePress -> oldPos.set(new Point2D(mousePress.getX(), mousePress.getY()))));
+
+        ObjectProperty<Point2D> oldPos = new SimpleObjectProperty<>(new Point2D(0, 0));
+        canvas.setOnMousePressed(event -> {
+            oldPos.set(new Point2D(event.getX(), event.getY()));
+        });
+
         canvas.setOnMouseDragged(dragEvent -> {
             ObjectProperty<Point2D> newPos = new SimpleObjectProperty<>();
             newPos.set(new Point2D(dragEvent.getX(), dragEvent.getY()));
 
-            if (!dragEvent.isStillSincePress()) {
+            double newX = mapViewParameters.get().topLeftX() - (newPos.get().getX() - oldPos.get().getX());
+            double newY = mapViewParameters.get().topLeftY() - (newPos.get().getY() - oldPos.get().getY());
 
-                double newX = mapViewParameters.get().topLeftX() - (newPos.get().getX() - oldPos.get().getX());
-                double newY = mapViewParameters.get().topLeftY() - (newPos.get().getY() - oldPos.get().getY());
 
-                mapViewParameters.set(mapViewParameters.get().withMinXY(newX, newY));
-                oldPos.set(newPos.get());
-            }
+            mapViewParameters.set(mapViewParameters.get().withMinXY(newX, newY));
+
+            oldPos.set(newPos.get());
         });
 
         mapViewParameters.addListener(event -> redrawOnNextPulse());
