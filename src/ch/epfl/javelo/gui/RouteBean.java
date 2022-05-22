@@ -14,14 +14,14 @@ import java.util.List;
 public final class RouteBean {
     public final ObservableList<Waypoint> waypoints;
 
-    private final ObjectProperty<Route> route;
+    private final ObjectProperty<Route> routeProperty;
     private final DoubleProperty highlightedPosition;
     private final ObjectProperty<ElevationProfile> elevationProfile;
     private final RouteComputer routeComputer;
     private final LinkedHashMap<Pair<Integer, Integer>, Route> samplesRoute = new LinkedHashMap<>(10);
 
     public RouteBean(RouteComputer routeComputer) {
-        route = new SimpleObjectProperty<>();
+        routeProperty = new SimpleObjectProperty<>();
         highlightedPosition = new SimpleDoubleProperty();
         elevationProfile = new SimpleObjectProperty<>();
         this.routeComputer = routeComputer;
@@ -32,7 +32,7 @@ public final class RouteBean {
     }
 
     public ReadOnlyObjectProperty<Route> routeProperty() {
-        return route;
+        return routeProperty;
     }
     public ReadOnlyObjectProperty<ElevationProfile> elevationProfileProperty() {
         return elevationProfile;
@@ -47,33 +47,44 @@ public final class RouteBean {
 
     private void updateRoute() {
         if(waypoints.size()<2) {
-            route.set(null);
+            routeProperty.set(null);
         }else {
             List<Route> segments = new ArrayList<>();
+
             for (int i = 0; i < waypoints.size()-1; i++) {
                 Route way;
-                Pair<Integer, Integer> nodes = new Pair<>(waypoints.get(i).nodeClosestToId(), waypoints.get(i+1).nodeClosestToId());
+                Pair<Integer, Integer> nodes = new Pair<>(
+                        waypoints.get(i).nodeClosestToId(),
+                        waypoints.get(i+1).nodeClosestToId());
+
                 if(samplesRoute.containsKey(nodes)) {
                     way = samplesRoute.get(nodes);
+
                 }else {
                     way = routeComputer.bestRouteBetween(nodes.getKey(), nodes.getValue());
                     samplesRoute.put(nodes, way);
+
                 }
+
                 if(way == null) {
-                    route.set(null);
+                    routeProperty.set(null);
                     return;
+
                 }else {
                     segments.add(way);
                 }
             }
-            route.set(new MultiRoute(segments));
+
+            routeProperty.set(new MultiRoute(segments));
         }
     }
+
     private void updateElevationProfile() {
-        if(route == null) {
+        if(routeProperty.get() == null) {
             elevationProfile.set(null);
+
         }else {
-            elevationProfile.set(ElevationProfileComputer.elevationProfile(route.get(), 5));
+            elevationProfile.set(ElevationProfileComputer.elevationProfile(routeProperty.get(), 5));
         }
     }
 }
