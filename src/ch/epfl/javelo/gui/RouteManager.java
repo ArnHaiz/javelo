@@ -56,23 +56,22 @@ public final class RouteManager {
         routeBean.highlightedPositionProperty().addListener((observable, oldValue, newValue) -> updateRoute());
 
         circle.setOnMouseClicked(event -> {
-            int index = -1;
+            boolean b = false;
 
             PointCh pch = routeBean.routeProperty().get().pointAt(routeBean.highlightedPositionProperty().get());
             for (int i = 0; i < routeBean.waypoints.size(); ++i) {
                 if (routeBean.waypoints.get(i).pointCh().equals(pch)) {
-                    index = -1;
+                    b = true;
                     break;
                 } else {
-                    index = Math2.clamp(1, i, routeBean.waypoints.size() - 1);
+                    b = false;
                 }
             }
 
-            if (index == -1) {
+            if (b) {
                 errorConsumer.accept("Un point de passage est déjà présent à cet endroit !");
             } else {
-                System.out.println(index);
-                routeBean.waypoints.add(index, new Waypoint(
+                routeBean.waypoints.add(1, new Waypoint(
                         pch,
                         routeBean.routeProperty().get().nodeClosestTo(routeBean.highlightedPositionProperty().get())));
 
