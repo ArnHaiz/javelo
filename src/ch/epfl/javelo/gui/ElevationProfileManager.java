@@ -2,9 +2,14 @@ package ch.epfl.javelo.gui;
 
 import ch.epfl.javelo.routing.ElevationProfile;
 import com.sun.javafx.geom.transform.Affine2D;
+import javafx.beans.InvalidationListener;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
@@ -24,17 +29,188 @@ public final class ElevationProfileManager {
     private final ReadOnlyObjectProperty<ElevationProfile> elevationProfile;
     private final ReadOnlyDoubleProperty highlightedPosition;
     private final Pane pane;
+    private final ObjectProperty<Rectangle2D> rectangle = new ObjectProperty<Rectangle2D>() {
+        @Override
+        public void addListener(InvalidationListener listener) {
+
+        }
+
+        @Override
+        public void removeListener(InvalidationListener listener) {
+
+        }
+
+        @Override
+        public void addListener(ChangeListener<? super Rectangle2D> listener) {
+
+        }
+
+        @Override
+        public void removeListener(ChangeListener<? super Rectangle2D> listener) {
+
+        }
+
+        @Override
+        public Rectangle2D get() {
+            return null;
+        }
+
+        @Override
+        public void set(Rectangle2D value) {
+
+        }
+
+        @Override
+        public Object getBean() {
+            return null;
+        }
+
+        @Override
+        public String getName() {
+            return null;
+        }
+
+        @Override
+        public void bind(ObservableValue<? extends Rectangle2D> observable) {
+
+        }
+
+        @Override
+        public void unbind() {
+
+        }
+
+        @Override
+        public boolean isBound() {
+            return false;
+        }
+    };
+    private final ObjectProperty<Transform> screenToWorld = new ObjectProperty<Transform>() {
+        @Override
+        public void bind(ObservableValue<? extends Transform> observable) {
+
+        }
+
+        @Override
+        public void unbind() {
+
+        }
+
+        @Override
+        public boolean isBound() {
+            return false;
+        }
+
+        @Override
+        public Object getBean() {
+            return null;
+        }
+
+        @Override
+        public String getName() {
+            return null;
+        }
+
+        @Override
+        public Transform get() {
+            return null;
+        }
+
+        @Override
+        public void addListener(ChangeListener<? super Transform> listener) {
+
+        }
+
+        @Override
+        public void removeListener(ChangeListener<? super Transform> listener) {
+
+        }
+
+        @Override
+        public void addListener(InvalidationListener listener) {
+
+        }
+
+        @Override
+        public void removeListener(InvalidationListener listener) {
+
+        }
+
+        @Override
+        public void set(Transform value) {
+
+        }
+    };
+    private final ObjectProperty<Transform> worldToScreen = new ObjectProperty<Transform>() {
+        @Override
+        public void bind(ObservableValue<? extends Transform> observable) {
+
+        }
+
+        @Override
+        public void unbind() {
+
+        }
+
+        @Override
+        public boolean isBound() {
+            return false;
+        }
+
+        @Override
+        public Object getBean() {
+            return null;
+        }
+
+        @Override
+        public String getName() {
+            return null;
+        }
+
+        @Override
+        public Transform get() {
+            return null;
+        }
+
+        @Override
+        public void addListener(ChangeListener<? super Transform> listener) {
+
+        }
+
+        @Override
+        public void removeListener(ChangeListener<? super Transform> listener) {
+
+        }
+
+        @Override
+        public void addListener(InvalidationListener listener) {
+
+        }
+
+        @Override
+        public void removeListener(InvalidationListener listener) {
+
+        }
+
+        @Override
+        public void set(Transform value) {
+
+        }
+    };
 
     public ElevationProfileManager(ReadOnlyObjectProperty<ElevationProfile> elevationProfile, ReadOnlyDoubleProperty highlightedPosition) throws NonInvertibleTransformException {
         this.elevationProfile = elevationProfile;
         this.highlightedPosition = highlightedPosition;
         pane = new Pane();
+        setRectangle(this.rectangle);
         CreateHierarchy(pane);
     }
 
     public Pane pane() {return pane;}
 
-    //public ReadOnlyDoubleProperty mousePositionOnProfileProperty() {}
+    public ReadOnlyDoubleProperty mousePositionOnProfileProperty() {
+        return null;
+    }
 
     private void CreateHierarchy(Pane pane) throws NonInvertibleTransformException {
         AddBorderPane(pane);
@@ -87,11 +263,11 @@ public final class ElevationProfileManager {
         text.getStyleClass().add(string);
         group.getChildren().add(text);
     }
-    //ToDo addAll avec coordonée
+
     private void AddPolygon(Pane pane) throws NonInvertibleTransformException {
         Polygon polygon = new Polygon();
         polygon.setId("profile");
-        for(int i = 40; i<=pane.getWidth(); i++) {
+        for(int i = 40; i<=pane.getWidth()-10; i++) {
             Transform toWorld = screenToWorld(i, 10);
             double height = elevationProfile.get().elevationAt(toWorld.getMyy());
             Transform toScreen = worldToScreen(toWorld.getMxx(), height);
@@ -112,12 +288,16 @@ public final class ElevationProfileManager {
         affine.setMxx(xScreen);
         affine.setMyy(yScreen);
         affine.prependTranslation(-40 , +20);
-        affine.prependScale(elevationProfile.get().length()/(pane.getWidth()-50), (elevationProfile.get().maxElevation()-elevationProfile.get().minElevation()/(pane.getHeight()-30)));
+        affine.prependScale(elevationProfile.get().length()/(rectangle.get().getWidth()-50), (elevationProfile.get().maxElevation()-elevationProfile.get().minElevation()/(rectangle.get().getHeight()-30)));
         affine.prependTranslation(0, elevationProfile.get().minElevation());
         return affine;
     }
 
     private Transform worldToScreen(double xWorld, double yWorld) throws NonInvertibleTransformException {
         return screenToWorld(xWorld, yWorld).createInverse();
+    }
+
+    private void setRectangle(ObjectProperty<Rectangle2D> rectangle) {
+        rectangle.set(new Rectangle2D(40,10, pane.getWidth(), pane.getHeight()));
     }
 }
