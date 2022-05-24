@@ -27,13 +27,14 @@ public final class RouteBean {
         this.routeComputer = routeComputer;
 
         waypoints = FXCollections.observableArrayList();
-        waypoints.addListener((Observable o)-> updateRoute());
-        waypoints.addListener((Observable o)-> updateElevationProfile());
+        waypoints.addListener((Observable o) -> updateRoute());
+        waypoints.addListener((Observable o) -> updateElevationProfile());
     }
 
     public ReadOnlyObjectProperty<Route> routeProperty() {
         return routeProperty;
     }
+
     public ReadOnlyObjectProperty<ElevationProfile> elevationProfileProperty() {
         return elevationProfile;
     }
@@ -41,36 +42,37 @@ public final class RouteBean {
     public void setHighlightedPosition(double position) {
         highlightedPosition.set(position);
     }
+
     public DoubleProperty highlightedPositionProperty() {
         return highlightedPosition;
     }
 
     private void updateRoute() {
-        if(waypoints.size()<2) {
+        if (waypoints.size() < 2) {
             routeProperty.set(null);
-        }else {
+        } else {
             List<Route> segments = new ArrayList<>();
 
-            for (int i = 0; i < waypoints.size()-1; i++) {
+            for (int i = 0; i < waypoints.size() - 1; i++) {
                 Route way;
                 Pair<Integer, Integer> nodes = new Pair<>(
                         waypoints.get(i).nodeClosestToId(),
-                        waypoints.get(i+1).nodeClosestToId());
+                        waypoints.get(i + 1).nodeClosestToId());
 
-                if(samplesRoute.containsKey(nodes)) {
+                if (samplesRoute.containsKey(nodes)) {
                     way = samplesRoute.get(nodes);
 
-                }else {
+                } else {
                     way = routeComputer.bestRouteBetween(nodes.getKey(), nodes.getValue());
                     samplesRoute.put(nodes, way);
 
                 }
 
-                if(way == null) {
+                if (way == null) {
                     routeProperty.set(null);
                     return;
 
-                }else {
+                } else {
                     segments.add(way);
                 }
             }
@@ -80,10 +82,10 @@ public final class RouteBean {
     }
 
     private void updateElevationProfile() {
-        if(routeProperty.get() == null) {
+        if (routeProperty.get() == null) {
             elevationProfile.set(null);
 
-        }else {
+        } else {
             elevationProfile.set(ElevationProfileComputer.elevationProfile(routeProperty.get(), 5));
         }
     }

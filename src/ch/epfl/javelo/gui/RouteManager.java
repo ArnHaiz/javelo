@@ -70,7 +70,7 @@ public final class RouteManager {
 
             if (b) {
                 errorConsumer.accept("Un point de passage est déjà présent à cet endroit !");
-            } else {
+            } else { //FIXME correct index
                 routeBean.waypoints.add(1, new Waypoint(
                         pch,
                         routeBean.routeProperty().get().nodeClosestTo(routeBean.highlightedPositionProperty().get())));
@@ -110,9 +110,13 @@ public final class RouteManager {
                 polyline.getPoints().add(mapViewParameters.get().viewY(pwm));
             }
 
+            polyline.setVisible(true);
+
 
         } else if (routeBean.routeProperty().get() == null) {
             circle.setVisible(false);
+            polyline.getPoints().clear();
+            polyline.setVisible(false);
         }
     }
 }
