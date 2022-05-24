@@ -150,5 +150,6 @@ public final class ElevationProfileManager {
         /*ObjectBinding<Rectangle> rectBind = Bindings.createObjectBinding(() -> {
             return new Rectangle(pane.getWidth() - 50, pane.getHeight() - 30);
         }, pane.getWidth(), pane.getHeight());*/
+        //miam miam
     }
 }
