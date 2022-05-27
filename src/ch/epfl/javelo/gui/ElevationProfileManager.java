@@ -1,13 +1,10 @@
 package ch.epfl.javelo.gui;
 
-import ch.epfl.javelo.Math2;
 import ch.epfl.javelo.routing.ElevationProfile;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.geometry.Insets;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
 import javafx.scene.layout.BorderPane;
@@ -17,18 +14,17 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.Polygon;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.NonInvertibleTransformException;
 import javafx.scene.transform.Transform;
 
 public final class ElevationProfileManager {
-    private final BorderPane borderPane;
-    private final Pane pane;
-    private final Polygon polygon;
-    private final Path path;
-    private final VBox vBox;
-    private final Line line;
+    private BorderPane borderPane;
+    private Pane pane;
+    private Polygon polygon;
+    private Path path;
+    private VBox vBox;
+    private Line line;
 
     private final ReadOnlyObjectProperty<ElevationProfile> elevationProfile;
     private final ReadOnlyDoubleProperty highlightedPosition;
@@ -60,9 +56,26 @@ public final class ElevationProfileManager {
 
         borderPane = new BorderPane();
         borderPane.getStylesheets().add("elevation_profile.css");
-        fillBorderPane();
 
+        borderPane.setCenter(pane);
+        borderPane.setBottom(vBox);
 
+        fillPane();
+        fillVBox();
+
+        /*rectangleProperty.bind(Bindings.createObjectBinding({new Rectangle2D(
+                        0,
+                        0,
+                        Math2.clamp(0, pane.getWidth() - 30, borderPane.getWidth()),
+                        Math2.clamp(0, pane.getHeight() - 50, borderPane.getHeight()))},
+                pane.widthProperty(),
+                pane.heightProperty()));*/
+
+        pane.widthProperty().addListener(((observable, oldValue, newValue) ->
+                rectangleProperty.set(new Rectangle2D(40, 10, Math.max(pane.getWidth() - 50, 0), Math.max(pane.getHeight() - 50, 0)))));
+
+        pane.heightProperty().addListener(((observable, oldValue, newValue) ->
+                rectangleProperty.set(new Rectangle2D(40, 10, Math.max(pane.getWidth() - 50, 0), Math.max(pane.getHeight() - 50, 0)))));
     }
 
     public BorderPane pane() {
@@ -73,29 +86,16 @@ public final class ElevationProfileManager {
         return null;
     } //TODO write this method
 
-    private void fillBorderPane() {
-        AddPane();
-        AddVBox();
-
-        borderPane.getChildren().add(new TextFlow(new Text("can place text")));
-    }
-
-    private void AddPane() {
-        bindRectangleProperty();
+    private void fillPane() {
         AddPath();
         AddGroup();
         AddPolygon();
         AddLine();
-
-
-        borderPane.setCenter(pane);
-        BorderPane.setMargin(pane, new Insets(10, 10, 20, 40));
     }
 
-    private void AddVBox() {
-        Text text = new Text();
+    private void fillVBox() {
+        Text text = new Text("this is the VBox");
         vBox.getChildren().add(text);
-        borderPane.setBottom(vBox);
     }
 
     private void AddPath() {
@@ -115,12 +115,14 @@ public final class ElevationProfileManager {
     }
 
     private void AddPolygon() {
-        redrawPolygon();
         pane.getChildren().add(polygon);
+        redrawPolygon();
+
     }
 
     private void AddLine() {
         pane.getChildren().add(line);
+        redrawLine();
     }
 
     private Transform screenToWorld(double xScreen, double yScreen) {
@@ -145,20 +147,8 @@ public final class ElevationProfileManager {
         }
     }
 
-    private void bindRectangleProperty() {
-        rectangleProperty.bind(Bindings.createObjectBinding(this::updateRectangle, pane.widthProperty(), pane.heightProperty()));
-    }
-
-    private Rectangle2D updateRectangle() {
-        System.out.println("rectangle is being updated");
-        return new Rectangle2D(
-                0,
-                0,
-                Math2.clamp(0, pane.getWidth() - 30, borderPane.getWidth()),
-                Math2.clamp(0, pane.getHeight() - 50, borderPane.getHeight()));
-    }
-
     private void redrawPolygon() {
+        System.out.println("updating polygon");
         polygon.getPoints().clear();
         if (rectangleProperty.get() != null) {
             polygon.getPoints().add(rectangleProperty.get().getMinX());
@@ -177,5 +167,9 @@ public final class ElevationProfileManager {
             polygon.setLayoutX(0);
             polygon.setLayoutY(rectangleProperty.get().getHeight());
         }
+    }
+
+    private void redrawLine() {
+
     }
 }
