@@ -14,7 +14,12 @@ import javafx.scene.shape.SVGPath;
 
 import java.util.function.Consumer;
 
-
+/**
+ * @author Arnaud Haizmann (329072)
+ * @author Hervé Sérandour (328233)
+ * <p>
+ * class representing all the waypoints on the map
+ */
 public class WaypointsManager {
     private final Graph graph;
     private final ObjectProperty<MapViewParameters> mapViewParametersProperty;
@@ -22,6 +27,14 @@ public class WaypointsManager {
     private final Consumer<String> errorManager;
     private final Pane pane;
 
+    /**
+     * construct a waypoint manager
+     *
+     * @param graph : graph attached at the map
+     * @param mapViewParametersProperty : mapViewParameters attached at the map
+     * @param waypointList : list of all the waypoints on the map
+     * @param errorManager : errorManager attached at the waypoints
+     */
     public WaypointsManager(Graph graph, ObjectProperty<MapViewParameters> mapViewParametersProperty,
                             ObservableList<Waypoint> waypointList, Consumer<String> errorManager) {
         this.graph = graph;
@@ -42,10 +55,21 @@ public class WaypointsManager {
         recomputeSVGs();
     }
 
+    /**
+     * return the pain representing the waypoints
+     *
+     * @return the pain representing the waypoints
+     */
     public Pane pane() {
         return pane;
     }
 
+    /**
+     * add a new waypoint at the waypoint list
+     *
+     * @param coordinateX : coordinate x of the new waypoint
+     * @param coordinateY : coordinate y of the new waypoint
+     */
     public void addWaypoint(double coordinateX, double coordinateY) {
         PointCh pointCh = mapViewParametersProperty.get().pointAt(coordinateX, coordinateY).toPointCh();
         int nodeClose = graph.nodeClosestTo(pointCh, 500);

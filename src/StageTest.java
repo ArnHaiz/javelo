@@ -22,7 +22,7 @@ public class StageTest extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        Graph graph = Graph.loadFrom(Path.of("lausanne"));
+        Graph graph = Graph.loadFrom(Path.of("ch_west"));
         Path cacheBasePath = Path.of(".");
         String tileServerHost = "https://tile.openstreetmap.org";
         TileManager tileManager =

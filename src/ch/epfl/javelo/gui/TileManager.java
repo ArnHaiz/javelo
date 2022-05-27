@@ -9,11 +9,22 @@ import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
-
+/**
+ * @author Arnaud Haizmann (329072)
+ * @author Hervé Sérandour (328233)
+ * <p>
+ * class managing the download of a tile
+ */
 public final class TileManager {
     private final Path path;
     private final String url;
 
+    /**
+     * construct a tile manager
+     *
+     * @param path : path to download the tile
+     * @param url : url to search the tile
+     */
     public TileManager(Path path, String url) {
         this.path = path;
         this.url = url;
@@ -21,6 +32,13 @@ public final class TileManager {
 
     private final LinkedHashMap<TileId, Image> cacheMemory = new LinkedHashMap<>(100);
 
+    /**
+     * return the tile of the id given
+     *
+     * @param tileId : id of the tile given
+     * @return the tile of the id given
+     * @throws IOException if the id of the tile is not valid
+     */
     public Image imageForTileAt(TileId tileId) throws IOException {
         return getCache(tileId);
     }
@@ -74,10 +92,36 @@ public final class TileManager {
         return String.format("%s/%d/%d/%d.png", basePath, tileId.tileZoomLevel, tileId.tileXIndex, tileId.tileYIndex);
     }
 
+    /**
+     * @author Arnaud Haizmann (329072)
+     * @author Hervé Sérandour (328233)
+     * <p>
+     * @param tileXIndex : index x of a tile at a zoom level
+     * @param tileYIndex : index y of a tile at a zoom level
+     * @param tileZoomLevel : zoom level of the tile
+     * record the id of a tile at a given zoom level
+     */
     record TileId(int tileZoomLevel, int tileXIndex, int tileYIndex) {
+
+        /**
+         * construct a tile id
+         *
+         * @param tileZoomLevel  : zoom level of the tile
+         * @param tileXIndex : index x of a tile at a zoom level
+         * @param tileYIndex : index y of a tile at a zoom level
+         */
         public TileId {
             Preconditions.checkArgument(isValid(tileZoomLevel, tileXIndex, tileYIndex));
         }
+
+        /**
+         * control the id of a tile given
+         *
+         * @param tileZoomLevel : zoom level of the tile
+         * @param tileXIndex : index x of a tile at a zoom level
+         * @param tileYIndex : index y of a tile at a zoom level
+         * @return true if the id is valid
+         */
         public static boolean isValid(int tileZoomLevel, int tileXIndex, int tileYIndex) {
             return (Math.pow(2, tileZoomLevel) > tileXIndex)
                     && (Math.pow(2, tileZoomLevel) > tileYIndex)
