@@ -94,7 +94,20 @@ public final class ElevationProfileManager {
     }
 
     private void fillVBox() {
-        Text text = new Text("this is the VBox");
+        double length = elevationProfile.get().length()*1e-3;
+        double ascent = elevationProfile.get().totalAscent();
+        double descent = elevationProfile.get().totalDescent();
+        double minElevation = elevationProfile.get().minElevation();
+        double maxElevation = elevationProfile.get().maxElevation();
+        Text text = new Text(String.format("Longueur : %.1f km" +
+                        "     Montée : %.0f m" +
+                        "     Descente : %.0f m" +
+                        "     Altitude : de %.0f m à %.0f m",
+                length,
+                ascent,
+                descent,
+                minElevation,
+                maxElevation));
         vBox.getChildren().add(text);
     }
 
