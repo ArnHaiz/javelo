@@ -1,15 +1,21 @@
 package ch.epfl.javelo.gui;
 
+import ch.epfl.javelo.Math2;
+import ch.epfl.javelo.projection.PointCh;
+import ch.epfl.javelo.projection.PointWebMercator;
 import ch.epfl.javelo.routing.ElevationProfile;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.Polygon;
@@ -30,16 +36,16 @@ public final class ElevationProfileManager {
     private final ReadOnlyDoubleProperty highlightedPosition;
 
     private final ObjectProperty<Rectangle2D> rectangleProperty;
-    private final ObjectProperty<Transform> screenToWorld;
-    private final ObjectProperty<Transform> worldToScreen;
+    private Transform screenToWorld;
+    private Transform worldToScreen;
 
     public ElevationProfileManager(ReadOnlyObjectProperty<ElevationProfile> elevationProfile, ReadOnlyDoubleProperty highlightedPosition) {
         this.elevationProfile = elevationProfile;
         this.highlightedPosition = highlightedPosition;
 
         rectangleProperty = new SimpleObjectProperty<>(Rectangle2D.EMPTY);
-        screenToWorld = new SimpleObjectProperty<>(new Affine());
-        worldToScreen = new SimpleObjectProperty<>(new Affine());
+        screenToWorld = screenToWorld();
+        worldToScreen = worldToScreen();
 
         polygon = new Polygon();
         polygon.setId("profile");
@@ -63,19 +69,9 @@ public final class ElevationProfileManager {
         fillPane();
         fillVBox();
 
-        /*rectangleProperty.bind(Bindings.createObjectBinding({new Rectangle2D(
-                        0,
-                        0,
-                        Math2.clamp(0, pane.getWidth() - 30, borderPane.getWidth()),
-                        Math2.clamp(0, pane.getHeight() - 50, borderPane.getHeight()))},
-                pane.widthProperty(),
-                pane.heightProperty()));*/
+        pane.widthProperty().addListener(((observable, oldValue, newValue) -> updatePane()));
 
-        pane.widthProperty().addListener(((observable, oldValue, newValue) ->
-                rectangleProperty.set(new Rectangle2D(40, 10, Math.max(pane.getWidth() - 50, 0), Math.max(pane.getHeight() - 50, 0)))));
-
-        pane.heightProperty().addListener(((observable, oldValue, newValue) ->
-                rectangleProperty.set(new Rectangle2D(40, 10, Math.max(pane.getWidth() - 50, 0), Math.max(pane.getHeight() - 50, 0)))));
+        pane.heightProperty().addListener(((observable, oldValue, newValue) -> updatePane()));
     }
 
     public BorderPane pane() {
@@ -87,10 +83,13 @@ public final class ElevationProfileManager {
     } //TODO write this method
 
     private void fillPane() {
-        AddPath();
-        AddGroup();
-        AddPolygon();
-        AddLine();
+        screenToWorld = screenToWorld();
+        worldToScreen = worldToScreen();
+
+        addPath();
+        addGroup();
+        addPolygon();
+        addLine();
     }
 
     private void fillVBox() {
@@ -98,78 +97,95 @@ public final class ElevationProfileManager {
         vBox.getChildren().add(text);
     }
 
-    private void AddPath() {
+    private void addPath() {
         pane.getChildren().add(path);
     }
 
-    private void AddGroup() {
+    private void addGroup() {
         Group group = new Group(); //FIXME need to add the stylesheets of all the elements going in the group
         pane.getChildren().add(group);
     }
 
-    private void AddTextGroup(Group group, String string) {
+    private void addTextGroup(Group group, String string) {
         Text text = new Text();
         text.getStyleClass().add("grid_label");
         text.getStyleClass().add(string);
         group.getChildren().add(text);
     }
 
-    private void AddPolygon() {
+    private void addPolygon() {
         pane.getChildren().add(polygon);
-        redrawPolygon();
-
     }
 
-    private void AddLine() {
+    private void addLine() {
         pane.getChildren().add(line);
-        redrawLine();
+        updateLine();
     }
 
-    private Transform screenToWorld(double xScreen, double yScreen) {
+    private Transform screenToWorld() {
+        try {
+            return worldToScreen().createInverse();
+        } catch (NonInvertibleTransformException e) {
+            return new Affine();
+        }
+    }
+
+    private Transform worldToScreen() {
         Affine affine = new Affine();
 
-        affine.setMxx(xScreen);
-        affine.setMyy(yScreen);
-        affine.prependTranslation(-40, +20);
-        affine.prependScale(elevationProfile.get().length() / (rectangleProperty.get().getWidth() - 50),
-                (elevationProfile.get().maxElevation() - elevationProfile.get().minElevation() /
-                        (rectangleProperty.get().getHeight() - 30)));
-        affine.prependTranslation(0, elevationProfile.get().minElevation());
-
+        affine.prependScale(
+                rectangleProperty.get().getWidth() / (elevationProfile.get().length()),
+                -rectangleProperty.get().getHeight() / elevationProfile.get().maxElevation());
+        affine.prependTranslation(rectangleProperty.get().getMinX(), rectangleProperty.get().getMaxY());
         return affine;
+
     }
 
-    private Transform worldToScreen(double xWorld, double yWorld) {
-        try {
-            return screenToWorld(xWorld, yWorld).createInverse();
-        } catch (NonInvertibleTransformException e) {
-            return null;
-        }
+    private void updatePane() {
+        System.out.println("updating pane");
+        rectangleProperty.set(new Rectangle2D(
+                40,
+                10,
+                Math.max(0, pane.getWidth() - 50),
+                Math.max(0, pane.getHeight() - 30)));
+
+        screenToWorld = screenToWorld();
+        worldToScreen = worldToScreen();
+
+        updatePolygon();
+        updateLine();
+        updateGroup();
+        updatePath();
     }
 
-    private void redrawPolygon() {
-        System.out.println("updating polygon");
+    private void updatePolygon() {
         polygon.getPoints().clear();
-        if (rectangleProperty.get() != null) {
-            polygon.getPoints().add(rectangleProperty.get().getMinX());
-            polygon.getPoints().add(rectangleProperty.get().getMinY() + rectangleProperty.get().getHeight());
+        Rectangle2D rect = rectangleProperty.get();
 
-            for (int i = 40; i < rectangleProperty.get().getWidth() + 40; i++) {
-                Transform toWorld = screenToWorld(i, 10 + rectangleProperty.get().getHeight());
-                double height = elevationProfile.get().elevationAt(toWorld.getMyy());
-                Transform toScreen = worldToScreen(toWorld.getMxx(), height);
-                polygon.getPoints().add(i, toScreen.getMyy());
-            }
+        polygon.getPoints().add(rect.getMinX());
+        polygon.getPoints().add(rect.getMaxY());
 
-            polygon.getPoints().add(rectangleProperty.get().getMaxX());
-            polygon.getPoints().add(rectangleProperty.get().getMaxY() - rectangleProperty.get().getHeight());
+        for (int i = 0; i < rect.getWidth(); ++i) {
+            double position = ((double) i) / rect.getWidth() * elevationProfile.get().length();
 
-            polygon.setLayoutX(0);
-            polygon.setLayoutY(rectangleProperty.get().getHeight());
+            Point2D transformed = worldToScreen.transform(position, elevationProfile.get().elevationAt(position));
+            polygon.getPoints().add(i + rect.getMinX());
+            polygon.getPoints().add(transformed.getY());
+
         }
+
+        polygon.getPoints().add(rect.getMaxX());
+        polygon.getPoints().add(rect.getMaxY());
+        polygon.setFill(Color.RED);
     }
 
-    private void redrawLine() {
+    private void updateLine() {
 
-    }
+    } //TODO complete the method
+
+    private void updateGroup() {
+    } //TODO complete the method
+
+    private void updatePath() {
+    } //TODO complete the method
 }
