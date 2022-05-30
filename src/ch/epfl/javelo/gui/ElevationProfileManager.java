@@ -35,17 +35,19 @@ public final class ElevationProfileManager {
     private ObjectProperty<Point2D> pointUnderMouse = new SimpleObjectProperty<>(new Point2D(0, 0));
 
     private final ObjectProperty<Rectangle2D> rectangleProperty;
+    Insets insets;
     private Transform screenToWorld;
     private Transform worldToScreen;
 
-    private final int MIN_VERTICAL_SPACING = 25;
-    private final int MIN_HORIZONTAL_SPACING = 50;
+    private final int MIN_VERTICAL_SPACING = 50;
+    private final int MIN_HORIZONTAL_SPACING = 25;
 
     public ElevationProfileManager(ReadOnlyObjectProperty<ElevationProfile> elevationProfile, ReadOnlyDoubleProperty highlightedPosition) {
         this.elevationProfile = elevationProfile;
         this.highlightedPosition = highlightedPosition;
 
         rectangleProperty = new SimpleObjectProperty<>(Rectangle2D.EMPTY);
+        insets = new Insets(10, 10, 20, 40);
         screenToWorld = screenToWorld();
         worldToScreen = worldToScreen();
 
@@ -128,22 +130,24 @@ public final class ElevationProfileManager {
     }
 
     private Transform screenToWorld() {
-        try {
-            return worldToScreen().createInverse();
-        } catch (NonInvertibleTransformException e) {
-            return new Affine();
-        }
+        Affine affine = new Affine();
+
+        affine.prependTranslation(-insets.left, -insets.top);
+        affine.prependScale(elevationProfile.get().length() /
+                        rectangleProperty.get().getWidth(),
+                (elevationProfile.get().minElevation() - elevationProfile.get().maxElevation()) /
+                        rectangleProperty.get().getHeight());
+        affine.prependTranslation(0, elevationProfile.get().maxElevation());
+
+        return affine;
     }
 
     private Transform worldToScreen() {
-        Affine affine = new Affine();
-
-        affine.prependScale(
-                rectangleProperty.get().getWidth() / (elevationProfile.get().length()),
-                rectangleProperty.get().getHeight() / elevationProfile.get().maxElevation());
-        affine.prependTranslation(rectangleProperty.get().getMinX(), rectangleProperty.get().getMaxY() - rectangleProperty.get().getHeight());
-        return affine;
-
+        try {
+            return screenToWorld.createInverse();
+        } catch (NonInvertibleTransformException e) {
+            return null;
+        }
     }
 
     private void updatePane() {
@@ -164,28 +168,28 @@ public final class ElevationProfileManager {
     }
 
     private void updatePolygon() {
-        //FIXME does not display the
         polygon.getPoints().clear();
         Rectangle2D rect = rectangleProperty.get();
         ElevationProfile profile = elevationProfile.get();
 
-        polygon.getPoints().add(worldToScreen.transform(0, profile.minElevation()).getX());
-        polygon.getPoints().add(worldToScreen.transform(0, profile.minElevation()).getY());
+        polygon.getPoints().add(rect.getMinX());
+        polygon.getPoints().add(rect.getMaxY());
 
         for (int i = 0; i < rect.getWidth(); ++i) {
             double position = ((double) i) / rect.getWidth() * profile.length();
 
             Point2D transformed = worldToScreen.transform(
                     position,
-                    profile.elevationAt(position) - profile.minElevation());
+                    profile.elevationAt(position));
             polygon.getPoints().add(i + rect.getMinX());
             polygon.getPoints().add(transformed.getY());
 
         }
 
-        polygon.getPoints().add(worldToScreen.transform(profile.length(), profile.minElevation()).getX());
-        polygon.getPoints().add(worldToScreen.transform(profile.length(), profile.minElevation()).getY());
+        polygon.getPoints().add(rect.getMaxX());
+        polygon.getPoints().add(rect.getMaxY());
         polygon.setFill(Color.RED);
+
     }
 
     private void updateLine() {
@@ -198,7 +202,7 @@ public final class ElevationProfileManager {
 
     private void updatePath() {
         path.getElements().clear();
-        //FIXME does not display lines where wanted
+        //FIXME does not display lines where wanted nor the right number
         int[] POS_STEPS =
                 {1000, 2000, 5000, 10_000, 25_000, 50_000, 100_000};
         int[] ELE_STEPS =
@@ -206,19 +210,21 @@ public final class ElevationProfileManager {
 
         double horizontalStep = POS_STEPS[POS_STEPS.length - 1];
         for (int i : POS_STEPS) {
-            if (worldToScreen.deltaTransform(0, elevationProfile.get().length() / i).getY() >= MIN_HORIZONTAL_SPACING) {
+            if (worldToScreen.deltaTransform(0, i).getY() >= MIN_HORIZONTAL_SPACING) {
                 horizontalStep = i;
                 break;
             }
         }
+        System.out.println(horizontalStep);
 
         double verticalStep = ELE_STEPS[ELE_STEPS.length - 1];
         for (int i : ELE_STEPS) {
-            if (worldToScreen.deltaTransform(elevationProfile.get().maxElevation() / i, 0).getX() >= MIN_VERTICAL_SPACING) {
+            if (worldToScreen.deltaTransform(i,0).getX() >= MIN_VERTICAL_SPACING) {
                 verticalStep = i;
                 break;
             }
         }
+        System.out.println(verticalStep);
 
         for (int i = 0; i <= elevationProfile.get().length(); i += horizontalStep) {
             Point2D startPoint = worldToScreen.transform(i, elevationProfile.get().minElevation());
