@@ -30,6 +30,7 @@ public final class ElevationProfileManager {
     private VBox vBox;
     private Line line;
 
+    private final DoubleProperty mouseXPositionProperty;
     private final ReadOnlyObjectProperty<ElevationProfile> elevationProfile;
     private final ReadOnlyDoubleProperty highlightedPosition;
     private ObjectProperty<Point2D> pointUnderMouse = new SimpleObjectProperty<>(new Point2D(0, 0));
@@ -46,8 +47,9 @@ public final class ElevationProfileManager {
         this.elevationProfile = elevationProfile;
         this.highlightedPosition = highlightedPosition;
 
+        mouseXPositionProperty = new SimpleDoubleProperty(Double.NaN);
         rectangleProperty = new SimpleObjectProperty<>(Rectangle2D.EMPTY);
-        insets = new Insets(10, 10, 20, 40);
+        insets = new Insets(10, 40, 20, 10);
         screenToWorld = screenToWorld();
         worldToScreen = worldToScreen();
 
@@ -77,7 +79,12 @@ public final class ElevationProfileManager {
 
         pane.heightProperty().addListener(((observable, oldValue, newValue) -> updatePane()));
 
-        pane.setOnMouseMoved(event -> pointUnderMouse.set(new Point2D(event.getX(), event.getY())));
+        pane.setOnMouseMoved(event -> {
+            pointUnderMouse.set(new Point2D(event.getSceneX(), event.getSceneY()));
+            mouseXPositionProperty.set(pointUnderMouse.get().getX());
+        });
+
+        pane.setOnMouseExited(event -> mouseXPositionProperty.set(Double.NaN));
 
         line.layoutXProperty().bind(mousePositionOnProfileProperty());
         line.startYProperty().bind(Bindings.createDoubleBinding(() -> rectangleProperty.get().getMinY(), rectangleProperty));
@@ -90,15 +97,7 @@ public final class ElevationProfileManager {
     }
 
     public ReadOnlyDoubleProperty mousePositionOnProfileProperty() {
-        if (rectangleProperty.get().contains(new Rectangle2D(
-                pointUnderMouse.get().getX(),
-                pointUnderMouse.get().getY(),
-                0,
-                0))) {
-            return new SimpleDoubleProperty();
-        } else {
-            return new SimpleDoubleProperty(Double.NaN);
-        }
+        return mouseXPositionProperty;
     }
 
     private void fillPane() {
@@ -163,7 +162,7 @@ public final class ElevationProfileManager {
 
         updateLine();
         updateGroup();
-        updatePolygon();
+        //updatePolygon();
         updatePath();
     }
 
@@ -202,7 +201,7 @@ public final class ElevationProfileManager {
 
     private void updatePath() {
         path.getElements().clear();
-        //FIXME does not display lines where wanted nor the right number
+        //FIXME does not display the right number of lines
         int[] POS_STEPS =
                 {1000, 2000, 5000, 10_000, 25_000, 50_000, 100_000};
         int[] ELE_STEPS =
@@ -241,8 +240,5 @@ public final class ElevationProfileManager {
             path.getElements().add(new MoveTo(startPoint.getX(), startPoint.getY()));
             path.getElements().add(new LineTo(endPoint.getX(), endPoint.getY()));
         }
-
-        path.setLayoutX(0);
-        path.setLayoutY(0);
     }
 }
