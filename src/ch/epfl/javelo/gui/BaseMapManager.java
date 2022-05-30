@@ -85,9 +85,7 @@ public final class BaseMapManager {
         });
 
         ObjectProperty<Point2D> oldPos = new SimpleObjectProperty<>(new Point2D(0, 0));
-        canvas.setOnMousePressed(event -> {
-            oldPos.set(new Point2D(event.getX(), event.getY()));
-        });
+        canvas.setOnMousePressed(event -> oldPos.set(new Point2D(event.getX(), event.getY())));
 
         canvas.setOnMouseDragged(dragEvent -> {
             ObjectProperty<Point2D> newPos = new SimpleObjectProperty<>();

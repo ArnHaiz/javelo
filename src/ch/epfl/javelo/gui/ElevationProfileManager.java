@@ -5,10 +5,7 @@ import ch.epfl.javelo.projection.PointCh;
 import ch.epfl.javelo.projection.PointWebMercator;
 import ch.epfl.javelo.routing.ElevationProfile;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyDoubleProperty;
-import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.*;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
@@ -16,13 +13,14 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Line;
-import javafx.scene.shape.Path;
+import javafx.scene.shape.*;
 import javafx.scene.shape.Polygon;
 import javafx.scene.text.Text;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.NonInvertibleTransformException;
 import javafx.scene.transform.Transform;
+
+import java.awt.*;
 
 public final class ElevationProfileManager {
     private BorderPane borderPane;
@@ -34,10 +32,14 @@ public final class ElevationProfileManager {
 
     private final ReadOnlyObjectProperty<ElevationProfile> elevationProfile;
     private final ReadOnlyDoubleProperty highlightedPosition;
+    private ObjectProperty<Point2D> pointUnderMouse = new SimpleObjectProperty<>(new Point2D(0, 0));
 
     private final ObjectProperty<Rectangle2D> rectangleProperty;
     private Transform screenToWorld;
     private Transform worldToScreen;
+
+    private final int MIN_VERTICAL_SPACING = 25;
+    private final int MIN_HORIZONTAL_SPACING = 50;
 
     public ElevationProfileManager(ReadOnlyObjectProperty<ElevationProfile> elevationProfile, ReadOnlyDoubleProperty highlightedPosition) {
         this.elevationProfile = elevationProfile;
@@ -72,6 +74,13 @@ public final class ElevationProfileManager {
         pane.widthProperty().addListener(((observable, oldValue, newValue) -> updatePane()));
 
         pane.heightProperty().addListener(((observable, oldValue, newValue) -> updatePane()));
+
+        pane.setOnMouseMoved(event -> pointUnderMouse.set(new Point2D(event.getX(), event.getY())));
+
+        line.layoutXProperty().bind(mousePositionOnProfileProperty());
+        line.startYProperty().bind(Bindings.createDoubleBinding(() -> rectangleProperty.get().getMinY(), rectangleProperty));
+        line.endYProperty().bind(Bindings.createDoubleBinding(() -> rectangleProperty.get().getMaxY(), rectangleProperty));
+        line.visibleProperty().bind(mousePositionOnProfileProperty().greaterThanOrEqualTo(0));
     }
 
     public BorderPane pane() {
@@ -79,21 +88,29 @@ public final class ElevationProfileManager {
     }
 
     public ReadOnlyDoubleProperty mousePositionOnProfileProperty() {
-        return null;
-    } //TODO write this method
+        if (rectangleProperty.get().contains(new Rectangle2D(
+                pointUnderMouse.get().getX(),
+                pointUnderMouse.get().getY(),
+                0,
+                0))) {
+            return new SimpleDoubleProperty();
+        } else {
+            return new SimpleDoubleProperty(Double.NaN);
+        }
+    }
 
     private void fillPane() {
         screenToWorld = screenToWorld();
         worldToScreen = worldToScreen();
 
-        addPath();
-        addGroup();
-        addPolygon();
-        addLine();
+        pane.getChildren().add(path);
+        pane.getChildren().add(polygon);
+        pane.getChildren().add(line);
+        //TODO add groups with their texts ans tags
     }
 
     private void fillVBox() {
-        double length = elevationProfile.get().length()*1e-3;
+        double length = elevationProfile.get().length() * 1e-3;
         double ascent = elevationProfile.get().totalAscent();
         double descent = elevationProfile.get().totalDescent();
         double minElevation = elevationProfile.get().minElevation();
@@ -110,31 +127,6 @@ public final class ElevationProfileManager {
         vBox.getChildren().add(text);
     }
 
-    private void addPath() {
-        pane.getChildren().add(path);
-    }
-
-    private void addGroup() {
-        Group group = new Group(); //FIXME need to add the stylesheets of all the elements going in the group
-        pane.getChildren().add(group);
-    }
-
-    private void addTextGroup(Group group, String string) {
-        Text text = new Text();
-        text.getStyleClass().add("grid_label");
-        text.getStyleClass().add(string);
-        group.getChildren().add(text);
-    }
-
-    private void addPolygon() {
-        pane.getChildren().add(polygon);
-    }
-
-    private void addLine() {
-        pane.getChildren().add(line);
-        updateLine();
-    }
-
     private Transform screenToWorld() {
         try {
             return worldToScreen().createInverse();
@@ -148,8 +140,8 @@ public final class ElevationProfileManager {
 
         affine.prependScale(
                 rectangleProperty.get().getWidth() / (elevationProfile.get().length()),
-                -rectangleProperty.get().getHeight() / elevationProfile.get().maxElevation());
-        affine.prependTranslation(rectangleProperty.get().getMinX(), rectangleProperty.get().getMaxY());
+                rectangleProperty.get().getHeight() / elevationProfile.get().maxElevation());
+        affine.prependTranslation(rectangleProperty.get().getMinX(), rectangleProperty.get().getMaxY() - rectangleProperty.get().getHeight());
         return affine;
 
     }
@@ -165,40 +157,86 @@ public final class ElevationProfileManager {
         screenToWorld = screenToWorld();
         worldToScreen = worldToScreen();
 
-        updatePolygon();
         updateLine();
         updateGroup();
+        updatePolygon();
         updatePath();
     }
 
     private void updatePolygon() {
+        //FIXME does not display the
         polygon.getPoints().clear();
         Rectangle2D rect = rectangleProperty.get();
+        ElevationProfile profile = elevationProfile.get();
 
-        polygon.getPoints().add(rect.getMinX());
-        polygon.getPoints().add(rect.getMaxY());
+        polygon.getPoints().add(worldToScreen.transform(0, profile.minElevation()).getX());
+        polygon.getPoints().add(worldToScreen.transform(0, profile.minElevation()).getY());
 
         for (int i = 0; i < rect.getWidth(); ++i) {
-            double position = ((double) i) / rect.getWidth() * elevationProfile.get().length();
+            double position = ((double) i) / rect.getWidth() * profile.length();
 
-            Point2D transformed = worldToScreen.transform(position, elevationProfile.get().elevationAt(position));
+            Point2D transformed = worldToScreen.transform(
+                    position,
+                    profile.elevationAt(position) - profile.minElevation());
             polygon.getPoints().add(i + rect.getMinX());
             polygon.getPoints().add(transformed.getY());
 
         }
 
-        polygon.getPoints().add(rect.getMaxX());
-        polygon.getPoints().add(rect.getMaxY());
+        polygon.getPoints().add(worldToScreen.transform(profile.length(), profile.minElevation()).getX());
+        polygon.getPoints().add(worldToScreen.transform(profile.length(), profile.minElevation()).getY());
         polygon.setFill(Color.RED);
     }
 
     private void updateLine() {
-
-    } //TODO complete the method
+        //TODO complete the method
+    }
 
     private void updateGroup() {
-    } //TODO complete the method
+        //TODO complete the method
+    }
 
     private void updatePath() {
-    } //TODO complete the method
+        path.getElements().clear();
+        //FIXME does not display lines where wanted
+        int[] POS_STEPS =
+                {1000, 2000, 5000, 10_000, 25_000, 50_000, 100_000};
+        int[] ELE_STEPS =
+                {5, 10, 20, 25, 50, 100, 200, 250, 500, 1_000};
+
+        double horizontalStep = POS_STEPS[POS_STEPS.length - 1];
+        for (int i : POS_STEPS) {
+            if (worldToScreen.deltaTransform(0, elevationProfile.get().length() / i).getY() >= MIN_HORIZONTAL_SPACING) {
+                horizontalStep = i;
+                break;
+            }
+        }
+
+        double verticalStep = ELE_STEPS[ELE_STEPS.length - 1];
+        for (int i : ELE_STEPS) {
+            if (worldToScreen.deltaTransform(elevationProfile.get().maxElevation() / i, 0).getX() >= MIN_VERTICAL_SPACING) {
+                verticalStep = i;
+                break;
+            }
+        }
+
+        for (int i = 0; i <= elevationProfile.get().length(); i += horizontalStep) {
+            Point2D startPoint = worldToScreen.transform(i, elevationProfile.get().minElevation());
+            Point2D endPoint = worldToScreen.transform(i, elevationProfile.get().maxElevation());
+
+            path.getElements().add(new MoveTo(startPoint.getX(), startPoint.getY()));
+            path.getElements().add(new LineTo(endPoint.getX(), endPoint.getY()));
+        }
+
+        for (double i = elevationProfile.get().minElevation(); i <= elevationProfile.get().maxElevation(); i += verticalStep) {
+            Point2D startPoint = worldToScreen.transform(0, i);
+            Point2D endPoint = worldToScreen.transform(elevationProfile.get().length(), i);
+
+            path.getElements().add(new MoveTo(startPoint.getX(), startPoint.getY()));
+            path.getElements().add(new LineTo(endPoint.getX(), endPoint.getY()));
+        }
+
+        path.setLayoutX(0);
+        path.setLayoutY(0);
+    }
 }
