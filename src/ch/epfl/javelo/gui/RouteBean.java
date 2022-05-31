@@ -82,6 +82,20 @@ public final class RouteBean {
         return highlightedPosition;
     }
 
+    public int indexOfNonEmptySegmentAt(double position) {
+        int index = route().indexOfSegmentAt(position);
+        for (int i = 0; i <= index; i += 1) {
+            int n1 = waypoints.get(i).nodeClosestToId();
+            int n2 = waypoints.get(i + 1).nodeClosestToId();
+            if (n1 == n2) index += 1;
+        }
+        return index;
+    }
+
+    private Route route() {
+        return routeProperty.get();
+    }
+
     private void updateRoute() {
         if (waypoints.size() < 2) {
             routeProperty.set(null);
