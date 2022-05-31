@@ -10,7 +10,7 @@ import javafx.util.Duration;
 
 public final class ErrorManager {
 
-    private final VBox vBox = new VBox();
+    private final VBox vBox;
     private final Text text = new Text();
     private final SequentialTransition animation = new SequentialTransition();
 
@@ -19,6 +19,7 @@ public final class ErrorManager {
     private final double DISAPPEARING_TIME = 500;
 
     public ErrorManager() {
+        vBox = new VBox();
         vBox.getStylesheets().add("error.css");
         vBox.getChildren().add(text);
         vBox.setMouseTransparent(true);

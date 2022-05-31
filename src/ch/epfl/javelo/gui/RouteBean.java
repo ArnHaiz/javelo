@@ -43,7 +43,7 @@ public final class RouteBean {
 
         waypoints = FXCollections.observableArrayList();
         waypoints.addListener((Observable o) -> updateRoute());
-        waypoints.addListener((Observable o) -> updateElevationProfile());
+        routeProperty.addListener((Observable o) -> updateElevationProfile());
     }
 
     /**
@@ -102,7 +102,7 @@ public final class RouteBean {
         } else {
             List<Route> segments = new ArrayList<>();
 
-            for (int i = 0; i < waypoints.size() - 1; i++) {
+            for (int i = 0; i < waypoints.size() - 1; ++i) {
                 Route way;
                 Pair<Integer, Integer> nodes = new Pair<>(
                         waypoints.get(i).nodeClosestToId(),
@@ -126,7 +126,12 @@ public final class RouteBean {
                 }
             }
 
-            routeProperty.set(new MultiRoute(segments));
+            if (segments.size() == 0) {
+                System.out.println("route is empty");
+                routeProperty.set(null);
+            } else {
+                routeProperty.set(new MultiRoute(segments));
+            }
         }
     }
 

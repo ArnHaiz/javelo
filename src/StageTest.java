@@ -1,12 +1,10 @@
 import ch.epfl.javelo.data.Graph;
 import ch.epfl.javelo.gui.*;
-import ch.epfl.javelo.projection.PointCh;
 import ch.epfl.javelo.routing.CityBikeCF;
 import ch.epfl.javelo.routing.RouteComputer;
 import javafx.application.Application;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
@@ -26,7 +24,7 @@ public class StageTest extends Application {
         Path cacheBasePath = Path.of(".");
         String tileServerHost = "https://tile.openstreetmap.org";
         TileManager tileManager =
-                new TileManager(cacheBasePath, "https://tile.openstreetmap.org");
+                new TileManager(cacheBasePath, tileServerHost);
 
         MapViewParameters mapViewParameters =
                 new MapViewParameters(12, 543200, 370650);
