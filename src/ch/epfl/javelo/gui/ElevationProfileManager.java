@@ -23,6 +23,12 @@ import javafx.scene.transform.Transform;
 
 import java.awt.*;
 
+/**
+ * @author Arnaud Haizmann (329072)
+ * @author Hervé Sérandour (328233)
+ *
+ * Class managing the display of the profil.
+ */
 public final class ElevationProfileManager {
     private final BorderPane borderPane;
     private final Pane pane;
@@ -51,6 +57,12 @@ public final class ElevationProfileManager {
     private final int MIN_VERTICAL_SPACING = 50;
     private final int MIN_HORIZONTAL_SPACING = 25;
 
+    /**
+     * public constructor handling all events and generating the updated displays.
+     *
+     * @param elevationProfile the profile that has to be displayed
+     * @param highlightedPosition the position along the route
+     */
     public ElevationProfileManager(ReadOnlyObjectProperty<ElevationProfile> elevationProfile, ReadOnlyDoubleProperty highlightedPosition) {
         this.elevationProfile = elevationProfile;
         this.highlightedPosition = highlightedPosition;
@@ -108,10 +120,20 @@ public final class ElevationProfileManager {
         line.visibleProperty().bind(mousePositionOnProfileProperty().greaterThanOrEqualTo(0));
     }
 
+    /**
+     * returns the pane on which all elements are displayed.
+     *
+     * @return the pane with all the drawn elements.
+     */
     public BorderPane pane() {
         return borderPane;
     }
 
+    /**
+     * returns the property containing the position of the mouse along the x-axis on the profile.
+     *
+     * @return the x-position of the mouse along the profile.
+     */
     public ReadOnlyDoubleProperty mousePositionOnProfileProperty() {
         return mouseXPositionProperty;
     }
