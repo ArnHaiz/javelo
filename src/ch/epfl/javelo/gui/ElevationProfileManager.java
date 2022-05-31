@@ -1,13 +1,13 @@
 package ch.epfl.javelo.gui;
 
-import ch.epfl.javelo.Math2;
-import ch.epfl.javelo.projection.PointCh;
-import ch.epfl.javelo.projection.PointWebMercator;
 import ch.epfl.javelo.routing.ElevationProfile;
+import com.sun.javafx.scene.control.LabeledText;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
+import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
+import javafx.geometry.VPos;
 import javafx.scene.Group;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
@@ -15,6 +15,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
 import javafx.scene.shape.Polygon;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.NonInvertibleTransformException;
@@ -23,23 +24,30 @@ import javafx.scene.transform.Transform;
 import java.awt.*;
 
 public final class ElevationProfileManager {
-    private BorderPane borderPane;
-    private Pane pane;
-    private Polygon polygon;
-    private Path path;
-    private VBox vBox;
-    private Line line;
+    private final BorderPane borderPane;
+    private final Pane pane;
+    private final Polygon polygon;
+    private final Path path;
+    private final VBox vBox;
+    private final Line line;
+    private final Group group;
 
     private final DoubleProperty mouseXPositionProperty;
     private final ReadOnlyObjectProperty<ElevationProfile> elevationProfile;
     private final ReadOnlyDoubleProperty highlightedPosition;
-    private ObjectProperty<Point2D> pointUnderMouse = new SimpleObjectProperty<>(new Point2D(0, 0));
+    private final ObjectProperty<Point2D> pointUnderMouse = new SimpleObjectProperty<>(new Point2D(0, 0));
 
     private final ObjectProperty<Rectangle2D> rectangleProperty;
-    Insets insets;
+    javafx.geometry.Insets insets;
     private Transform screenToWorld;
     private Transform worldToScreen;
 
+    private final int[] POS_STEPS =
+            {1000, 2000, 5000, 10_000, 25_000, 50_000, 100_000};
+    private final int[] ELE_STEPS =
+            {5, 10, 20, 25, 50, 100, 200, 250, 500, 1_000};
+    private double horizontalStep = POS_STEPS[POS_STEPS.length - 1];
+    private double verticalStep = ELE_STEPS[ELE_STEPS.length - 1];
     private final int MIN_VERTICAL_SPACING = 50;
     private final int MIN_HORIZONTAL_SPACING = 25;
 
@@ -49,7 +57,7 @@ public final class ElevationProfileManager {
 
         mouseXPositionProperty = new SimpleDoubleProperty(Double.NaN);
         rectangleProperty = new SimpleObjectProperty<>(Rectangle2D.EMPTY);
-        insets = new Insets(10, 40, 20, 10);
+        insets = new Insets(10, 10, 20, 40);
         screenToWorld = screenToWorld();
         worldToScreen = worldToScreen();
 
@@ -63,6 +71,8 @@ public final class ElevationProfileManager {
         vBox.setId("profile_data");
 
         line = new Line();
+
+        group = new Group();
 
         pane = new Pane();
 
@@ -84,9 +94,16 @@ public final class ElevationProfileManager {
             mouseXPositionProperty.set(pointUnderMouse.get().getX());
         });
 
-        pane.setOnMouseExited(event -> mouseXPositionProperty.set(Double.NaN));
-
-        line.layoutXProperty().bind(mousePositionOnProfileProperty());
+        line.layoutXProperty().bind(Bindings.createDoubleBinding(() -> {
+            if (screenToWorld.transform(mouseXPositionProperty.get(), 0).getX() < 0 ||
+                    screenToWorld.transform(mouseXPositionProperty.get(), 0).getX() > elevationProfile.get().length() ||
+                    screenToWorld.transform(0, pointUnderMouse.get().getY()).getY() > elevationProfile.get().maxElevation() ||
+                    screenToWorld.transform(0, pointUnderMouse.get().getY()).getY() < elevationProfile.get().minElevation()) {
+                mouseXPositionProperty.set(Double.NaN);
+                return Double.NaN;
+            }
+            return mouseXPositionProperty.get();
+        }, pointUnderMouse));
         line.startYProperty().bind(Bindings.createDoubleBinding(() -> rectangleProperty.get().getMinY(), rectangleProperty));
         line.endYProperty().bind(Bindings.createDoubleBinding(() -> rectangleProperty.get().getMaxY(), rectangleProperty));
         line.visibleProperty().bind(mousePositionOnProfileProperty().greaterThanOrEqualTo(0));
@@ -107,7 +124,7 @@ public final class ElevationProfileManager {
         pane.getChildren().add(path);
         pane.getChildren().add(polygon);
         pane.getChildren().add(line);
-        //TODO add groups with their texts ans tags
+        pane.getChildren().add(group);
     }
 
     private void fillVBox() {
@@ -131,7 +148,7 @@ public final class ElevationProfileManager {
     private Transform screenToWorld() {
         Affine affine = new Affine();
 
-        affine.prependTranslation(-insets.left, -insets.top);
+        affine.prependTranslation(-insets.getLeft(), -insets.getTop());
         affine.prependScale(elevationProfile.get().length() /
                         rectangleProperty.get().getWidth(),
                 (elevationProfile.get().minElevation() - elevationProfile.get().maxElevation()) /
@@ -150,7 +167,6 @@ public final class ElevationProfileManager {
     }
 
     private void updatePane() {
-        System.out.println("updating pane");
         rectangleProperty.set(new Rectangle2D(
                 40,
                 10,
@@ -160,10 +176,23 @@ public final class ElevationProfileManager {
         screenToWorld = screenToWorld();
         worldToScreen = worldToScreen();
 
-        updateLine();
-        updateGroup();
-        //updatePolygon();
+        for (int i : POS_STEPS) {
+            if (worldToScreen.deltaTransform(i, 0).getX() >= MIN_HORIZONTAL_SPACING) {
+                horizontalStep = i;
+                break;
+            }
+        }
+
+        for (int i : ELE_STEPS) {
+            if (-worldToScreen.deltaTransform(0, i).getY() >= MIN_VERTICAL_SPACING) {
+                verticalStep = i;
+                break;
+            }
+        }
+
+        updatePolygon();
         updatePath();
+        updateGroup();
     }
 
     private void updatePolygon() {
@@ -191,40 +220,35 @@ public final class ElevationProfileManager {
 
     }
 
-    private void updateLine() {
-        //TODO complete the method
-    }
-
     private void updateGroup() {
-        //TODO complete the method
+        //FIXME styleClass
+        group.getChildren().clear();
+        for (int i = 0; i <= elevationProfile.get().length(); i += horizontalStep) {
+            Text text = new Text(String.valueOf(i / 1000));
+            text.setFont(Font.font("Avenir", 10));
+            text.textOriginProperty().set(VPos.TOP);
+            text.setLayoutX(worldToScreen.transform(i, 0).getX() - text.prefWidth(0) / 2);
+            text.setLayoutY(rectangleProperty.get().getMaxY());
+            text.getStyleClass().add("grid_label");
+            text.getStyleClass().add("horizontal");
+            group.getChildren().add(text);
+        }
+
+        for (double i = elevationProfile.get().minElevation() + horizontalStep; i <= elevationProfile.get().maxElevation(); i += horizontalStep) {
+            Text text = new Text(String.valueOf((int) elevationProfile.get().elevationAt(i)));
+            text.setFont(Font.font("Avenir", 10));
+            text.textOriginProperty().set(VPos.CENTER);
+            text.setLayoutX(rectangleProperty.get().getMinX() - text.prefWidth(0));
+            text.setLayoutY(worldToScreen.transform(0, i).getY());
+            text.getStyleClass().add("grid_label");
+            text.getStyleClass().add("vertical");
+            group.getChildren().add(text);
+        }
     }
 
     private void updatePath() {
         path.getElements().clear();
         //FIXME does not display the right number of lines
-        int[] POS_STEPS =
-                {1000, 2000, 5000, 10_000, 25_000, 50_000, 100_000};
-        int[] ELE_STEPS =
-                {5, 10, 20, 25, 50, 100, 200, 250, 500, 1_000};
-
-        double horizontalStep = POS_STEPS[POS_STEPS.length - 1];
-        for (int i : POS_STEPS) {
-            if (worldToScreen.deltaTransform(0, i).getY() >= MIN_HORIZONTAL_SPACING) {
-                horizontalStep = i;
-                break;
-            }
-        }
-        System.out.println(horizontalStep);
-
-        double verticalStep = ELE_STEPS[ELE_STEPS.length - 1];
-        for (int i : ELE_STEPS) {
-            if (worldToScreen.deltaTransform(i,0).getX() >= MIN_VERTICAL_SPACING) {
-                verticalStep = i;
-                break;
-            }
-        }
-        System.out.println(verticalStep);
-
         for (int i = 0; i <= elevationProfile.get().length(); i += horizontalStep) {
             Point2D startPoint = worldToScreen.transform(i, elevationProfile.get().minElevation());
             Point2D endPoint = worldToScreen.transform(i, elevationProfile.get().maxElevation());

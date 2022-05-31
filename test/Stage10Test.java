@@ -38,7 +38,6 @@ public class Stage10Test extends Application {
                         highlightProperty);
 
         highlightProperty.bind(profileManager.mousePositionOnProfileProperty());
-        //TODO need to uncomment this line when mousePositionOnProfileProperty() is written
 
         Scene scene = new Scene(profileManager.pane());
 
