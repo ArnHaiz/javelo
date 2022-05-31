@@ -38,7 +38,7 @@ public final class ElevationProfileManager {
     private final ObjectProperty<Point2D> pointUnderMouse = new SimpleObjectProperty<>(new Point2D(0, 0));
 
     private final ObjectProperty<Rectangle2D> rectangleProperty;
-    javafx.geometry.Insets insets;
+    private final javafx.geometry.Insets insets = new Insets(10, 10, 20, 40);
     private Transform screenToWorld;
     private Transform worldToScreen;
 
@@ -57,7 +57,6 @@ public final class ElevationProfileManager {
 
         mouseXPositionProperty = new SimpleDoubleProperty(Double.NaN);
         rectangleProperty = new SimpleObjectProperty<>(Rectangle2D.EMPTY);
-        insets = new Insets(10, 10, 20, 40);
         screenToWorld = screenToWorld();
         worldToScreen = worldToScreen();
 
