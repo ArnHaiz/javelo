@@ -221,7 +221,6 @@ public final class ElevationProfileManager {
     }
 
     private void updateGroup() {
-        //FIXME styleClass
         group.getChildren().clear();
         for (int i = 0; i <= elevationProfile.get().length(); i += horizontalStep) {
             Text text = new Text(String.valueOf(i / 1000));
@@ -248,7 +247,6 @@ public final class ElevationProfileManager {
 
     private void updatePath() {
         path.getElements().clear();
-        //FIXME does not display the right number of lines
         for (int i = 0; i <= elevationProfile.get().length(); i += horizontalStep) {
             Point2D startPoint = worldToScreen.transform(i, elevationProfile.get().minElevation());
             Point2D endPoint = worldToScreen.transform(i, elevationProfile.get().maxElevation());
