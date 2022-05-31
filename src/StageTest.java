@@ -49,7 +49,7 @@ public class StageTest extends Application {
                         , mapViewParametersP
                         , waypointsManager);
 
-        RouteManager routeManager = new RouteManager(routeBean, mapViewParametersP, errorConsumer);
+        RouteManager routeManager = new RouteManager(routeBean, mapViewParametersP);
 
         StackPane mainPane = new StackPane(baseMapManager.pane(), waypointsManager.pane(), routeManager.pane());
         mainPane.getStylesheets().add("map.css");

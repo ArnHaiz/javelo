@@ -32,8 +32,7 @@ public class AnnotatedMapManager {
         mapViewParameters.set(new MapViewParameters(INITIAL_ZOOM_LEVEL,INITIAL_TOP_LEFT_X,INITIAL_TOP_LEFT_Y));
         waypointsManager = new WaypointsManager(graph, mapViewParameters, routeBean.waypoints, errorManager);
         baseMapManager = new BaseMapManager(tileManager, mapViewParameters, waypointsManager);
-        routeManager = new RouteManager(routeBean, mapViewParameters, errorManager);
-        //TODO enlever errorManager
+        routeManager = new RouteManager(routeBean, mapViewParameters);
 
         pane.getChildren().add(baseMapManager.pane());
         pane.getChildren().add(routeManager.pane());

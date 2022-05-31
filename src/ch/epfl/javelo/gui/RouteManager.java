@@ -21,7 +21,6 @@ import java.util.function.Consumer;
 public final class RouteManager {
     RouteBean routeBean;
     ReadOnlyObjectProperty<MapViewParameters> mapViewParameters;
-    Consumer<String> errorConsumer;
 
     Pane pane = new Pane();
     Polyline polyline;
@@ -32,12 +31,10 @@ public final class RouteManager {
      *
      * @param routeBean         bean representing the route to display
      * @param mapViewParameters the parameters of the current display
-     * @param errorConsumer     the consumer for specific problems
      */
-    public RouteManager(RouteBean routeBean, ReadOnlyObjectProperty<MapViewParameters> mapViewParameters, Consumer<String> errorConsumer) {
+    public RouteManager(RouteBean routeBean, ReadOnlyObjectProperty<MapViewParameters> mapViewParameters) {
         this.routeBean = routeBean;
         this.mapViewParameters = mapViewParameters;
-        this.errorConsumer = errorConsumer;
 
         polyline = new Polyline();
         polyline.setId("route");
@@ -56,26 +53,11 @@ public final class RouteManager {
         routeBean.highlightedPositionProperty().addListener((observable, oldValue, newValue) -> updateRoute());
 
         circle.setOnMouseClicked(event -> {
-            boolean b = false;
-
-            PointCh pch = routeBean.routeProperty().get().pointAt(routeBean.highlightedPositionProperty().get());
-            for (int i = 0; i < routeBean.waypoints.size(); ++i) {
-                if (routeBean.waypoints.get(i).pointCh().equals(pch)) {
-                    b = true;
-                    break;
-                } else {
-                    b = false;
-                }
-            }
-
-            if (b) {
-                errorConsumer.accept("Un point de passage est déjà présent à cet endroit !");
-            } else { //FIXME correct index
-                routeBean.waypoints.add(1, new Waypoint(
-                        pch,
-                        routeBean.routeProperty().get().nodeClosestTo(routeBean.highlightedPositionProperty().get())));
-
-            }
+            double position = routeBean.highlightedPositionProperty().get();
+            int index = routeBean.indexOfNonEmptySegmentAt(position);
+            routeBean.waypoints.add(index, new Waypoint(
+                    routeBean.routeProperty().get().pointAt(position),
+                    routeBean.routeProperty().get().nodeClosestTo(position)));
         });
     }
 
