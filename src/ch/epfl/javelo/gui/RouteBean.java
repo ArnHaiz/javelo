@@ -114,7 +114,6 @@ public final class RouteBean {
                 } else {
                     way = routeComputer.bestRouteBetween(nodes.getKey(), nodes.getValue());
                     samplesRoute.put(nodes, way);
-
                 }
 
                 if (way == null) {

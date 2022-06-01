@@ -30,18 +30,21 @@ public final class ElevationProfileComputer {
         double stepLength = route.length() / (nbSamples - 1);
         float[] elevationProfile = new float[nbSamples];
         float[] nullArray = new float[nbSamples];
+
         Arrays.fill(nullArray, 0);
+
         fillForNormalProfile(elevationProfile, route, stepLength);
-        fillFirstGape(elevationProfile);
-        if (!(Arrays.equals(elevationProfile, nullArray))) {
-            fillLastGape(elevationProfile);
-            fillMiddleGapes(elevationProfile);
+        fillFirstGap(elevationProfile);
+        if (!Arrays.equals(elevationProfile, nullArray)) {
+            fillLastGap(elevationProfile);
+            fillMiddleGaps(elevationProfile);
         }
+
         return new ElevationProfile(route.length(), elevationProfile);
     }
 
     private static void fillForNormalProfile(float[] elevationProfile, Route route, double stepLength) {
-        for (int i = 0; i < elevationProfile.length; i++) {
+        for (int i = 0; i < elevationProfile.length; ++i) {
             if (Float.isNaN((float) route.elevationAt(i * stepLength))) {
                 elevationProfile[i] = NaN;
             } else {
@@ -50,11 +53,13 @@ public final class ElevationProfileComputer {
         }
     }
 
-    private static void fillFirstGape(float[] elevationProfile) {
+    private static void fillFirstGap(float[] elevationProfile) {
         int index = 0;
+
         while ((index < elevationProfile.length - 1) && (Float.isNaN(elevationProfile[index]))) {
             ++index;
         }
+
         if (index == elevationProfile.length - 1) {
             Arrays.fill(elevationProfile, 0);
         } else {
@@ -64,7 +69,7 @@ public final class ElevationProfileComputer {
         }
     }
 
-    private static void fillLastGape(float[] elevationProfile) {
+    private static void fillLastGap(float[] elevationProfile) {
         int index = elevationProfile.length - 1;
         while (Float.isNaN(elevationProfile[index])) {
             index--;
@@ -74,7 +79,7 @@ public final class ElevationProfileComputer {
         }
     }
 
-    private static void fillMiddleGapes(float[] elevationProfile) {
+    private static void fillMiddleGaps(float[] elevationProfile) {
         int firstIndex;
         int lastIndex;
         for (int i = 0; i < elevationProfile.length; i++) {

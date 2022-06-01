@@ -51,7 +51,7 @@ public final class JaVelo extends Application {
 
         routeBean = new RouteBean(new RouteComputer(graph, new CityBikeCF(graph)));
         errorManager = new ErrorManager();
-        annotatedMapManager = new AnnotatedMapManager(graph, tileManager, routeBean, new ErrorConsumer());
+        annotatedMapManager = new AnnotatedMapManager(graph, tileManager, routeBean, e -> errorManager.display(e));
 
         borderPane = new BorderPane();
         stackPane = new StackPane();
@@ -86,8 +86,10 @@ public final class JaVelo extends Application {
 
             } else {
                 splitPane.getItems().remove(splitPane.getItems().size() - 1);
+
             }
         });
+
     }
 
     private static final class ErrorConsumer implements Consumer<String> {

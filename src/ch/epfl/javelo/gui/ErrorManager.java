@@ -8,6 +8,8 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 
+import java.util.function.Consumer;
+
 public final class ErrorManager {
 
     private final VBox vBox;
@@ -27,7 +29,7 @@ public final class ErrorManager {
 
     public Pane pane() {return vBox;}
 
-    public void displayError(String string) {
+    public void display(String string) {
         java.awt.Toolkit.getDefaultToolkit().beep();
         text.setText(string);
         animation.stop();
