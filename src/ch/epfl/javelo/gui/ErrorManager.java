@@ -10,6 +10,12 @@ import javafx.util.Duration;
 
 import java.util.function.Consumer;
 
+/**
+ * @author Arnaud Haizmann (329072)
+ * @author Hervé Sérandour (328233)
+ *
+ * Class creating the error message
+ */
 public final class ErrorManager {
 
     private final VBox vBox;
@@ -20,6 +26,9 @@ public final class ErrorManager {
     private final double WAITING_TIME = 2000;
     private final double DISAPPEARING_TIME = 500;
 
+    /**
+     * constructor creating the error manger
+     */
     public ErrorManager() {
         vBox = new VBox();
         vBox.getStylesheets().add("error.css");
@@ -27,8 +36,18 @@ public final class ErrorManager {
         vBox.setMouseTransparent(true);
     }
 
+    /**
+     * return the pane containing the error's message
+     *
+     * @return the pane containing the error's message
+     */
     public Pane pane() {return vBox;}
 
+    /**
+     * display the message of error
+     *
+     * @param string : message of error
+     */
     public void display(String string) {
         java.awt.Toolkit.getDefaultToolkit().beep();
         text.setText(string);

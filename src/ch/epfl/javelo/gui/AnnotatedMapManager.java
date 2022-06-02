@@ -13,6 +13,12 @@ import javafx.scene.layout.StackPane;
 
 import java.util.function.Consumer;
 
+/**
+ * @author Arnaud Haizmann (329072)
+ * @author Hervé Sérandour (328233)
+ *
+ * Class merging all the pane to creat the final represantation of the map.
+ */
 public class AnnotatedMapManager {
     private final int INITIAL_ZOOM_LEVEL = 12;
     private final int INITIAL_TOP_LEFT_X = 543200;
@@ -28,6 +34,14 @@ public class AnnotatedMapManager {
     private final ObjectProperty<Point2D> pointUnderMouse = new SimpleObjectProperty<>(new Point2D(0, 0));
     private final DoubleProperty mousePositionOnRouteProperty = new SimpleDoubleProperty();
 
+    /**
+     * public constructor handling all event and creation the annotated map
+     *
+     * @param graph : graph attached at the map
+     * @param tileManager : handler of the tiles of the map to be drawn
+     * @param routeBean : bean representing the itinirary
+     * @param errorManager : errorManager attached at the waypoints
+     */
     public AnnotatedMapManager(Graph graph, TileManager tileManager, RouteBean routeBean, Consumer<String> errorManager) {
         mapViewParameters.set(new MapViewParameters(INITIAL_ZOOM_LEVEL, INITIAL_TOP_LEFT_X, INITIAL_TOP_LEFT_Y));
         waypointsManager = new WaypointsManager(graph, mapViewParameters, routeBean.waypoints, errorManager);
@@ -43,10 +57,20 @@ public class AnnotatedMapManager {
         mousePositionOnRouteProperty.bind(Bindings.createDoubleBinding(this::computePositionOnRoute, pointUnderMouse));
     }
 
+    /**
+     * return the pane attached to the annotated map
+     *
+     * @return the pane attached to the annotated map
+     */
     public Pane pane() {
         return stackPane;
     }
 
+    /**
+     * return the position of the mouse on the route
+     *
+     * @return the position of the mouse on the route
+     */
     public DoubleProperty mousePositionOnRouteProperty() {
         return mousePositionOnRouteProperty;
     }
