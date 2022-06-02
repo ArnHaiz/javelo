@@ -4,6 +4,7 @@ import ch.epfl.javelo.data.Graph;
 import ch.epfl.javelo.routing.CityBikeCF;
 import ch.epfl.javelo.routing.RouteComputer;
 import javafx.application.Application;
+import javafx.beans.binding.Bindings;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.MenuBar;
@@ -72,7 +73,6 @@ public final class JaVelo extends Application {
         primaryStage.setScene(new Scene(borderPane, PRIMARY_WIDTH, PRIMARY_HEIGHT));
         primaryStage.show();
 
-
         routeBean.routeProperty().addListener((observable, oldValue, newValue) -> {
             if (oldValue == null && newValue != null) {
                 updateProfileManager();
@@ -90,6 +90,19 @@ public final class JaVelo extends Application {
             }
         });
 
+        routeBean.highlightedPositionProperty().bind(Bindings.createDoubleBinding(()-> {
+            if(annotatedMapManager.mousePositionOnRouteProperty().get()>=0) {
+                routeBean.highlightedPositionProperty().set(annotatedMapManager.mousePositionOnRouteProperty().get());
+                return annotatedMapManager.mousePositionOnRouteProperty().get();
+            }else {
+                if(elevationProfileManager!=null) {
+                    routeBean.highlightedPositionProperty().set(elevationProfileManager.mousePositionOnProfileProperty().get());
+                    return elevationProfileManager.mousePositionOnProfileProperty().get();
+                }else {
+                    return (double) 0;
+                }
+        }}));
+
     }
 
     private static final class ErrorConsumer implements Consumer<String> {
@@ -98,6 +111,5 @@ public final class JaVelo extends Application {
             System.out.println(s);
         }
     }
-
 
 }

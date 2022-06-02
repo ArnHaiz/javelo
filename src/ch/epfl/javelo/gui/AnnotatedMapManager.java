@@ -57,7 +57,6 @@ public class AnnotatedMapManager {
         if ((routeManager.routeBean.routeProperty().get() == null) ||
                 (Double.isNaN(pointUnderMouse.get().getX())) ||
                 (Double.isNaN(pointUnderMouse.get().getY()))) {
-
             return Double.NaN;
 
         } else if (pointCh.distanceTo(routeManager.routeBean.routeProperty().get().pointClosestTo(pointCh).point()) <= 15) {

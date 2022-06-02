@@ -82,6 +82,12 @@ public final class RouteBean {
         return highlightedPosition;
     }
 
+    /**
+     * return index of the waypoint attached
+     *
+     * @param position : position in meter on the itinirary
+     * @return index of the waypoint attached
+     */
     public int indexOfNonEmptySegmentAt(double position) {
         int index = route().indexOfSegmentAt(position);
         for (int i = 0; i <= index; i += 1) {
