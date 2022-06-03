@@ -78,9 +78,9 @@ public class AnnotatedMapManager {
     private double computePositionOnRoute() {
         PointCh pointCh = mapViewParameters.get().pointAt(pointUnderMouse.get().getX(), pointUnderMouse.get().getY()).toPointCh();
 
-        if ((routeManager.routeBean.routeProperty().get() == null) ||
-                (Double.isNaN(pointUnderMouse.get().getX())) ||
-                (Double.isNaN(pointUnderMouse.get().getY()))) {
+        if (routeManager.routeBean.routeProperty().get() == null ||
+                Double.isNaN(pointUnderMouse.get().getX()) ||
+                Double.isNaN(pointUnderMouse.get().getY())) {
             return Double.NaN;
 
         } else if (pointCh.distanceTo(routeManager.routeBean.routeProperty().get().pointClosestTo(pointCh).point()) <= 15) {
@@ -88,7 +88,6 @@ public class AnnotatedMapManager {
 
         } else {
             return Double.NaN;
-
         }
     }
 }

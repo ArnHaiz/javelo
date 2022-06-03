@@ -17,6 +17,12 @@ import javafx.stage.Stage;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 
+/**
+ * @author Arnaud Haizmann (329072)
+ * @author Hervé Sérandour (328233)
+ *
+ * top-level class controlling the final display and events of the game. This class can be run to launch the app.
+ */
 public final class JaVelo extends Application {
     private final int PRIMARY_WIDTH = 800;
     private final int PRIMARY_HEIGHT = 600;
